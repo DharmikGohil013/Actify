@@ -1,31 +1,42 @@
-// /server.js
+// /server/server.js
+
+require('dotenv').config(); // Load .env first
 const express = require('express');
-const dotenv = require('dotenv');
 const cors = require('cors');
-
-dotenv.config(); // Loads .env
-
 const connectDB = require('./config/db');
+const errorHandler = require('./middlewares/errorHandler');
+const startNotificationCron = require('./middlewares/notificationCron');
+
+const app = express();
 
 // Connect to MongoDB
 connectDB();
 
-const app = express();
-
 // Middleware
 app.use(cors());
-app.use(express.json()); // Parse JSON requests
+app.use(express.json()); // Parse JSON body
 
-// Test route
+// --- ROUTES ---
 app.get('/', (req, res) => {
-  res.send('API is running...');
+  res.send('Actify API is running!');
 });
 
-// TODO: Add your route imports here, e.g.
-// const taskRoutes = require('./routes/tasks');
-// app.use('/api/tasks', taskRoutes);
+// API endpoint routes
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/users', require('./routes/users'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/settings', require('./routes/settings'));
+app.use('/api/calendar', require('./routes/calendar'));
 
+// Error Handler (should be last)
+app.use(errorHandler);
+
+// Start cron jobs for reminders/notifications
+startNotificationCron();
+
+// Port
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
 });
