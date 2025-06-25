@@ -1,13 +1,123 @@
-body {
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html, body, #root {
+  height: 100%;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f7f8fa;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+/* App main styles */
+body {
+  color: #222e3a;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5 {
+  margin-top: 0;
+  margin-bottom: .5em;
+  font-weight: 700;
+  color: #1976d2;
+}
+
+/* Inputs & Buttons */
+input, select, textarea, button {
+  font-family: inherit;
+  font-size: 1em;
+  border-radius: 6px;
+  border: 1px solid #d2dae3;
+  outline: none;
+  padding: 9px 12px;
+  margin-bottom: 4px;
+  background: #fff;
+  transition: border-color .15s;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #1976d2;
+}
+
+button {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  padding: 9px 20px;
+  margin-top: 4px;
+  font-weight: 600;
+  transition: background .15s;
+}
+button:hover, button:focus {
+  background: #155fa0;
+}
+
+label {
+  font-size: 0.97em;
+  color: #222e3a;
+  margin-right: 8px;
+}
+
+/* Links */
+a {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Cards & sections */
+.dashboard-container,
+form,
+section {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px #0001;
+  padding: 24px;
+  margin-bottom: 18px;
+}
+
+aside {
+  box-shadow: 2px 0 10px #0001;
+}
+
+@media (max-width: 800px) {
+  .dashboard-container,
+  form,
+  section {
+    padding: 14px;
+  }
+  aside {
+    min-width: 60px;
+    width: 120px;
+    font-size: 13px;
+  }
+  main {
+    padding: 10px !important;
+  }
+}
+
+/* Custom for react-calendar */
+.react-calendar {
+  border: none !important;
+  box-shadow: 0 1px 6px #0001;
+  border-radius: 8px;
+  padding: 8px;
+  margin-bottom: 16px;
+}
+.react-calendar__tile--active {
+  background: #1976d2 !important;
+  color: #fff !important;
+}
+.react-calendar__tile--now {
+  background: #e3f2fd !important;
+  color: #1976d2 !important;
 }

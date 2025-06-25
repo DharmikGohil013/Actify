@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext } from "react";
+import { BrowserRouter, useLocation } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import { AuthContext } from "./context/AuthContext";
+import AppRoutes from "./routes";
 
-function App() {
+// Layout with sidebar visibility logic
+function Layout({ children }) {
+  const { user } = useContext(AuthContext);
+  const location = useLocation();
+  const noSidebarPaths = ["/login", "/register"];
+  const showSidebar = user && !noSidebarPaths.includes(location.pathname);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#f7f8fa" }}>
+      {showSidebar && <Sidebar />}
+      <main style={{ flex: 1 }}>{children}</main>
     </div>
   );
 }
 
-export default App;
+// App component
+export default function App() {
+  return (
+    <BrowserRouter>
+      <LayoutWrapper>
+        <AppRoutes />
+      </LayoutWrapper>
+    </BrowserRouter>
+  );
+}
+
+// Helper for useLocation inside BrowserRouter
+function LayoutWrapper({ children }) {
+  const location = useLocation();
+  return <Layout location={location}>{children}</Layout>;
+}
