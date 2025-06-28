@@ -1,25 +1,29 @@
-import React, { createContext, useState, useEffect } from "react";
+import React, { createContext, useEffect, useState } from "react";
+import { getUserProfile } from "../utils/api";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
 
+  // Fetch user profile if token exists
   useEffect(() => {
-    const u = localStorage.getItem("user");
-    if (u) setUser(JSON.parse(u));
+    const token = localStorage.getItem("token");
+    if (token && !user) {
+      getUserProfile().then(data => {
+        if (data && data.name) setUser(data);
+      });
+    }
   }, []);
 
   function loginUser(userObj, token) {
-    setUser(userObj);
-    localStorage.setItem("user", JSON.stringify(userObj));
     localStorage.setItem("token", token);
+    setUser(userObj);
   }
 
   function logoutUser() {
-    setUser(null);
-    localStorage.removeItem("user");
     localStorage.removeItem("token");
+    setUser(null);
   }
 
   return (
