@@ -151,3 +151,95 @@ export async function register(name, email, password) {
   });
   return res.json();
 }
+
+
+// Create a new project
+export async function createProject(project) {
+  const res = await fetch(`${API}/projects`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(project),
+  });
+  return res.json();
+}
+
+// Get all projects of logged-in user
+export async function getMyProjects() {
+  const res = await fetch(`${API}/projects`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+// Get one project with full detail
+export async function getProjectById(id) {
+  const res = await fetch(`${API}/projects/${id}`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+// Delete a project (Admin only)
+export async function deleteProject(id) {
+  const res = await fetch(`${API}/projects/${id}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+// Add member to a project (Admin only)
+export async function addProjectMember(projectId, userId, role) {
+  const res = await fetch(`${API}/projects/${projectId}/members`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ userId, role }),
+  });
+  return res.json();
+}
+
+// Remove a member from a project (Admin only)
+export async function removeProjectMember(projectId, userId) {
+  const res = await fetch(`${API}/projects/${projectId}/members/${userId}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+
+// Create a task under a project
+export async function createProjectTask(projectId, task) {
+  const res = await fetch(`${API}/projects/${projectId}/tasks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify(task),
+  });
+  return res.json();
+}
+
+// Start a task (Member marks it as started)
+export async function startProjectTask(taskId) {
+  const res = await fetch(`${API}/project-tasks/${taskId}/start`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+// Complete a task (Member marks it as done)
+export async function completeProjectTask(taskId) {
+  const res = await fetch(`${API}/project-tasks/${taskId}/complete`, {
+    method: "PATCH",
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+// Get all tasks under one project
+export async function getProjectTasks(projectId) {
+  const res = await fetch(`${API}/projects/${projectId}/tasks`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}

@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
+import Projects from "./pages/Projects";
+import ProjectDetails from "./pages/ProjectDetails";
 
 import Dashboard from "./pages/Dashboard";
 import DailyTasks from "./pages/DailyTasks";
@@ -82,6 +84,22 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route
+  path="/projects"
+  element={
+    <PrivateRoute>
+      <Projects />
+    </PrivateRoute>
+  }
+/>
+<Route
+  path="/projects/:projectId"
+  element={
+    <PrivateRoute>
+      <ProjectDetails />
+    </PrivateRoute>
+  }
+/>
       {/* Catch-all: redirect unknown paths */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

@@ -2,11 +2,12 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const helmet = require('helmet'); // NEW: Secure headers
-const rateLimit = require('express-rate-limit'); // NEW: Prevent brute force
+const helmet = require('helmet'); // Secure headers
+const rateLimit = require('express-rate-limit'); // Prevent brute force
 const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
 const startNotificationCron = require('./middlewares/notificationCron');
+const startDailyReminderCron = require('./middlewares/dailyReminderCron'); // NEW: Daily email cron
 
 const app = express();
 
@@ -14,16 +15,16 @@ const app = express();
 connectDB();
 
 // Middleware
-app.use(helmet()); // Security headers
+app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Support form-data
-app.set('trust proxy', 1); // For real IPs behind proxies
+app.use(express.urlencoded({ extended: true }));
+app.set('trust proxy', 1);
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: { msg: 'Too many requests, please try again later.' },
 });
 app.use('/api/', limiter);
@@ -43,8 +44,9 @@ app.use('/api/calendar', require('./routes/calendar'));
 // Error Handler
 app.use(errorHandler);
 
-// Start Cron
+// Start Cron Jobs
 startNotificationCron();
+startDailyReminderCron();
 
 // Start Server
 const PORT = process.env.PORT || 5000;

@@ -1,10 +1,11 @@
+// /controllers/userController.js
 const User = require('../models/User');
 const Task = require('../models/Task');
 
 // Get current user profile + stats
 exports.getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).select('-password');
+    const user = await User.findById(req.user.id).select('-password').populate('friends', 'name email');
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
     const tasks = await Task.find({ user: user._id });
@@ -50,3 +51,34 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ msg: 'Failed to update profile', err: err.message });
   }
 };
+
+// Follow another user
+exports.followUser = async (req, res) => {
+  try {
+    const { friendId } = req.params;
+    const me = req.user.id;
+
+    if (me === friendId) return res.status(400).json({ msg: "You can't follow yourself." });
+
+    const user = await User.findById(me);
+    if (!user.friends.includes(friendId)) {
+      user.friends.push(friendId);
+      await user.save();
+    }
+
+    res.json({ msg: 'Followed successfully', friends: user.friends });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to follow user', err: err.message });
+  }
+};
+
+// Get my friends
+exports.getFriends = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).populate('friends', 'name email');
+    res.json(user.friends);
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to get friends', err: err.message });
+  }
+};
+

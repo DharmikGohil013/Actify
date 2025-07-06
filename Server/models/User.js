@@ -1,3 +1,4 @@
+// /models/User.js
 const mongoose = require('mongoose');
 
 const UserSchema = new mongoose.Schema({
@@ -11,6 +12,7 @@ const UserSchema = new mongoose.Schema({
   verificationToken: { type: String },
   role: { type: String, enum: ['User', 'Admin'], default: 'User' },
   isDeleted: { type: Boolean, default: false },
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // New: Friend list
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -21,3 +23,5 @@ UserSchema.pre('save', function (next) {
 });
 
 module.exports = mongoose.model('User', UserSchema);
+
+

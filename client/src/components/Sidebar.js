@@ -1,30 +1,69 @@
 import { Link, useLocation } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-// Helper for initials
+// Generate user initials
 function getInitials(name) {
   if (!name) return "";
-  return name.slice(0, 2).toUpperCase();
+  return name.split(" ").map(word => word[0]).join("").slice(0, 2).toUpperCase();
 }
 
-const links = [
-  { to: "/", label: "Dashboard", icon: "🏠" },
-  { to: "/tasks", label: "Daily Tasks", icon: "📝" },
-  { to: "/calendar", label: "Calendar", icon: "📅" },
-  { to: "/upcoming", label: "Upcoming", icon: "⏳" },
-  { to: "/notifications", label: "Notifications", icon: "🔔" },
-  { to: "/settings", label: "Settings", icon: "⚙️" },
-];
+// Reusable sidebar link
+function SidebarLink({ to, icon, label, currentPath }) {
+  const active = currentPath === to;
+  return (
+    <Link
+      to={to}
+      title={label}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 14,
+        color: active ? "#61dafb" : "#fff",
+        background: active ? "#2c3d4f" : "none",
+        padding: "13px 34px",
+        textDecoration: "none",
+        fontWeight: active ? "bold" : "normal",
+        fontSize: 17,
+        borderLeft: active ? "4px solid #61dafb" : "4px solid transparent",
+        transition: "background 0.15s, color 0.15s, border 0.15s",
+        borderRadius: "0 22px 22px 0",
+        margin: "3px 0",
+        cursor: "pointer",
+      }}
+      onMouseOver={e => e.currentTarget.style.background = "#263447"}
+      onMouseOut={e => e.currentTarget.style.background = active ? "#2c3d4f" : "none"}
+    >
+      <span style={{ fontSize: 20 }}>{icon}</span>
+      {label}
+    </Link>
+  );
+}
 
 export default function Sidebar() {
+  const { user } = useContext(AuthContext);
   const location = useLocation();
-  const { user } = useContext(AuthContext); // 👈 real user from context
+  const [collapsed, setCollapsed] = useState(false);
+  const role = user?.role || "User";
+
+  const coreLinks = [
+    { to: "/", label: "Dashboard", icon: "🏠" },
+    { to: "/tasks", label: "Daily Tasks", icon: "📝" },
+    { to: "/calendar", label: "Calendar", icon: "📅" },
+    { to: "/upcoming", label: "Upcoming", icon: "⏳" },
+    { to: "/notifications", label: "Notifications", icon: "🔔" },
+    { to: "/settings", label: "Settings", icon: "⚙️" },
+  ];
+
+  const extraLinks = [
+    { to: "/projects", label: "Team Projects", icon: "🧑‍🤝‍🧑" },
+    { to: "/friends", label: "Friends", icon: "🤝" },
+  ];
 
   return (
     <aside
       style={{
-        width: 230,
+        width: collapsed ? 80 : 230,
         background: "#222e3a",
         color: "#fff",
         display: "flex",
@@ -32,12 +71,13 @@ export default function Sidebar() {
         justifyContent: "space-between",
         minHeight: "100vh",
         boxShadow: "2px 0 12px #0001",
+        transition: "width 0.2s ease-in-out"
       }}
     >
-      {/* Top logo + brand */}
+      {/* Top Section */}
       <div style={{ padding: "34px 0 0 0" }}>
         <div style={{
-          display: "flex", alignItems: "center", justifyContent: "center",
+          display: "flex", alignItems: "center", justifyContent: collapsed ? "center" : "center",
           marginBottom: 36, gap: 12
         }}>
           <img
@@ -52,50 +92,74 @@ export default function Sidebar() {
               boxShadow: "0 1px 7px #1976d210",
             }}
           />
-          <span
-            style={{
-              fontSize: 26,
-              fontWeight: 800,
-              fontFamily: "'CuboWide','Orbitron','Arial Black',Arial,sans-serif",
-              color: "#61dafb",
-              letterSpacing: 2,
-            }}
-          >
-            Actify
-          </span>
+          {!collapsed && (
+            <span
+              style={{
+                fontSize: 26,
+                fontWeight: 800,
+                fontFamily: "'CuboWide','Orbitron','Arial Black',Arial,sans-serif",
+                color: "#61dafb",
+                letterSpacing: 2,
+              }}
+            >
+              Actify
+            </span>
+          )}
         </div>
-        {/* Main navigation */}
+
+        {/* Collapse Button */}
+        <div style={{ textAlign: "right", paddingRight: 20, marginBottom: 14 }}>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#aaa",
+              cursor: "pointer",
+              fontSize: 18
+            }}
+            title={collapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          >
+            {collapsed ? "➡️" : "⬅️"}
+          </button>
+        </div>
+
+        {/* Main Navigation */}
         <nav>
-          {links.map((link) => (
-            <Link
+          {coreLinks.map(link => (
+            <SidebarLink
               key={link.to}
               to={link.to}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 14,
-                color: location.pathname === link.to ? "#61dafb" : "#fff",
-                background: location.pathname === link.to ? "#2c3d4f" : "none",
-                padding: "13px 34px",
-                textDecoration: "none",
-                fontWeight: location.pathname === link.to ? "bold" : "normal",
-                fontSize: 17,
-                borderLeft: location.pathname === link.to ? "4px solid #61dafb" : "4px solid transparent",
-                transition: "background 0.15s, color 0.15s, border 0.15s",
-                borderRadius: "0 22px 22px 0",
-                margin: "3px 0",
-                cursor: "pointer",
-              }}
-              onMouseOver={e => e.currentTarget.style.background = "#263447"}
-              onMouseOut={e => e.currentTarget.style.background = location.pathname === link.to ? "#2c3d4f" : "none"}
-            >
-              <span style={{ fontSize: 20 }}>{link.icon}</span>
-              {link.label}
-            </Link>
+              icon={link.icon}
+              label={!collapsed ? link.label : ""}
+              currentPath={location.pathname}
+            />
           ))}
+
+          {/* Team/Project/Friends Only for logged-in users */}
+          {user && extraLinks.map(link => (
+            <SidebarLink
+              key={link.to}
+              to={link.to}
+              icon={link.icon}
+              label={!collapsed ? link.label : ""}
+              currentPath={location.pathname}
+            />
+          ))}
+
+          {/* Admin Only Section (Example) */}
+          {role === "Admin" && (
+            <SidebarLink
+              to="/admin/users"
+              icon="🛡️"
+              label={!collapsed ? "Admin Panel" : ""}
+              currentPath={location.pathname}
+            />
+          )}
         </nav>
       </div>
-      {/* Bottom: Profile link with avatar initials */}
+
+      {/* Bottom Profile Section */}
       <div style={{
         margin: "0 0 32px 0",
         padding: "18px 0 0 0",
@@ -122,7 +186,6 @@ export default function Sidebar() {
           onMouseOver={e => e.currentTarget.style.background = "#263447"}
           onMouseOut={e => e.currentTarget.style.background = location.pathname === "/profile" ? "#2c3d4f" : "none"}
         >
-          {/* Avatar with initials */}
           <div
             style={{
               width: 32,
@@ -136,13 +199,12 @@ export default function Sidebar() {
               fontWeight: 700,
               fontSize: 16,
               textTransform: "uppercase",
-              letterSpacing: 1,
               userSelect: "none",
             }}
           >
-            {user && user.name ? getInitials(user.name) : ""}
+            {user?.name ? getInitials(user.name) : ""}
           </div>
-          <span>{user && user.name ? user.name : "Profile"}</span>
+          {!collapsed && <span>{user?.name || "Profile"}</span>}
         </Link>
       </div>
     </aside>
