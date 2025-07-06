@@ -51,3 +51,35 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ msg: 'Failed to update profile', err: err.message });
   }
 };
+
+
+const bcrypt = require('bcryptjs');
+
+exports.changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) return res.status(400).json({ msg: 'Old password incorrect' });
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await user.save();
+
+    res.json({ msg: 'Password changed successfully' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to change password', err: err.message });
+  }
+};
+
+exports.updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const user = await User.findByIdAndUpdate(req.user.id, { avatar }, { new: true }).select('-password');
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to update avatar', err: err.message });
+  }
+};

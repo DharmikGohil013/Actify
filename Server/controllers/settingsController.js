@@ -27,3 +27,27 @@ exports.updateSettings = async (req, res) => {
     res.status(500).json({ msg: 'Failed to update settings', err: err.message });
   }
 };
+
+
+exports.syncGoogleCalendar = async (req, res) => {
+  try {
+    // Placeholder logic for syncing
+    res.json({ msg: 'Google Calendar sync initiated (mock)' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to sync calendar', err: err.message });
+  }
+};
+
+exports.unsubscribeWeeklySummary = async (req, res) => {
+  try {
+    const setting = await Setting.findOneAndUpdate(
+      { user: req.user.id },
+      { weeklySummary: false },
+      { new: true }
+    );
+    res.json({ msg: 'Weekly summary disabled', setting });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to unsubscribe', err: err.message });
+  }
+};
+
