@@ -2,13 +2,10 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
-// Public routes
+console.log('REGISTER:', authController.register);
+console.log('LOGIN:', authController.login); // 👈 Add this line temporarily
+
 router.post('/register', authController.register);
-router.post('/login', authController.login);
-router.post('/verify-email', authController.verifyEmail);
-router.post('/resend-verification', authController.resendVerification);
-router.post('/forgot-password', authController.forgotPassword);
-router.post('/reset-password', authController.resetPassword);
-router.post('/google', authController.googleOAuth); // (optional if you add it)
+router.post('/login', authController.login); // This is crashing if `login` is undefined
 
 module.exports = router;

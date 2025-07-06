@@ -1,39 +1,44 @@
-// /utils/reminders.js
 const Task = require('../models/Task');
 const Notification = require('../models/Notification');
 const sendEmail = require('./sendEmail');
 const sendPush = require('./sendPush');
+const User = require('../models/User');
 
-/**
- * Check for tasks with reminders and send notifications.
- * Call this from your cron or notification service.
- */
 const processReminders = async () => {
-  // Example: find tasks with a reminder time <= now, status incomplete
   const now = new Date();
+
+  // Find tasks with due reminders not yet sent
   const tasks = await Task.find({
     reminder: { $lte: now },
-    status: 'Incomplete'
-    // Add filter so you don't double-notify (e.g., add a "reminderSent" flag on task)
+    status: 'Incomplete',
+    isDeleted: { $ne: true },
+    reminderSent: { $ne: true }
   });
 
   for (const task of tasks) {
-    // Send notification
+    const user = await User.findById(task.user).populate('settings');
+
+    const message = `Reminder: "${task.name}" is scheduled for ${task.time}`;
+
+    // Create in-app notification
     await Notification.create({
-      user: task.user,
-      message: `Reminder: "${task.name}" is scheduled soon!`,
-      type: 'Reminder'
+      user: user._id,
+      message,
+      type: 'Reminder',
+      date: new Date()
     });
 
-    // (Optional) Email/push
-    // Fetch user info if needed
-    // const user = await User.findById(task.user);
-    // await sendEmail(user.email, 'Task Reminder', `Reminder: ${task.name}`);
-    // await sendPush(user, `Task Reminder: ${task.name}`);
+    // Optional email
+    if (user.email && user.settings?.pushNotifications !== false) {
+      await sendEmail(user.email, 'Task Reminder', message);
+    }
 
-    // Optionally, mark as sent so you don't remind again
-    // task.reminderSent = true;
-    // await task.save();
+    // Optional push
+    await sendPush(user, message);
+
+    // Mark reminder as sent
+    task.reminderSent = true;
+    await task.save();
   }
 };
 

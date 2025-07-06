@@ -1,26 +1,23 @@
-// /controllers/userController.js
 const User = require('../models/User');
 const Task = require('../models/Task');
 
-// Get user profile + stats
+// Get current user profile + stats
 exports.getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    // Stats: completion, common types, productive time
     const tasks = await Task.find({ user: user._id });
     const completed = tasks.filter(t => t.status === 'Complete').length;
     const total = tasks.length;
+
     const typeCount = {};
     let hourCount = Array(24).fill(0);
 
     tasks.forEach(task => {
       typeCount[task.type] = (typeCount[task.type] || 0) + 1;
-      if (task.time) {
-        const hour = parseInt(task.time.split(':')[0]);
-        if (!isNaN(hour)) hourCount[hour]++;
-      }
+      const hour = parseInt(task.time?.split(':')[0]);
+      if (!isNaN(hour)) hourCount[hour]++;
     });
 
     const mostCommonType = Object.entries(typeCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'None';
@@ -39,47 +36,17 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// Update profile
+// Update user profile
 exports.updateProfile = async (req, res) => {
   try {
     const updates = { ...req.body };
-    if (updates.password) delete updates.password; // don't update password here
+    if (updates.password) delete updates.password;
+
     const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true }).select('-password');
     if (!user) return res.status(404).json({ msg: 'User not found' });
+
     res.json(user);
   } catch (err) {
     res.status(500).json({ msg: 'Failed to update profile', err: err.message });
-  }
-};
-
-
-const bcrypt = require('bcryptjs');
-
-exports.changePassword = async (req, res) => {
-  try {
-    const { oldPassword, newPassword } = req.body;
-    const user = await User.findById(req.user.id);
-    if (!user) return res.status(404).json({ msg: 'User not found' });
-
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) return res.status(400).json({ msg: 'Old password incorrect' });
-
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-
-    res.json({ msg: 'Password changed successfully' });
-  } catch (err) {
-    res.status(500).json({ msg: 'Failed to change password', err: err.message });
-  }
-};
-
-exports.updateAvatar = async (req, res) => {
-  try {
-    const { avatar } = req.body;
-    const user = await User.findByIdAndUpdate(req.user.id, { avatar }, { new: true }).select('-password');
-    if (!user) return res.status(404).json({ msg: 'User not found' });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ msg: 'Failed to update avatar', err: err.message });
   }
 };

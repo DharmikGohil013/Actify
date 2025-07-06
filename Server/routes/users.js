@@ -3,20 +3,13 @@ const router = express.Router();
 const requireAuth = require('../middlewares/auth');
 const userController = require('../controllers/userController');
 
+// Debugging to confirm functions are defined
+console.log('GET PROFILE:', userController.getProfile);
+console.log('UPDATE PROFILE:', userController.updateProfile);
+
 router.use(requireAuth);
 
-// Profile and settings
 router.get('/me', userController.getProfile);
 router.put('/me', userController.updateProfile);
-
-// Avatar & password
-router.post('/me/avatar', userController.updateAvatar); // NEW
-router.patch('/me/password', userController.changePassword); // NEW
-
-// Admin
-router.get('/all', userController.getAllUsers); // if user is admin
-router.patch('/:id/role', userController.changeUserRole); // Admin only
-router.patch('/:id/delete', userController.softDeleteUser); // Soft delete
-router.patch('/:id/restore', userController.restoreUser); // Soft restore
 
 module.exports = router;

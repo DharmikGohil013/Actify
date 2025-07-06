@@ -1,11 +1,22 @@
-// /utils/sendPush.js
-// This is a placeholder—expand as needed with your notification provider
+// Placeholder: Replace with OneSignal, FCM, or custom Web Push implementation
 
 const sendPush = async (user, message, data = {}) => {
-  // Implement push logic using FCM, OneSignal, or browser API
-  // Example:
-  // await pushProvider.send({ to: user.pushToken, title: 'Actify', body: message, ...data });
-  console.log(`Push notification to user ${user.email}: ${message}`);
+  // If pushToken exists and push is enabled, send
+  if (!user || user.settings?.pushNotifications === false) {
+    return false;
+  }
+
+  // Log for now – replace with push provider code
+  console.log(`📲 PUSH to ${user.email || user._id}: ${message}`);
+
+  // Example to integrate:
+  // await pushProvider.send({
+  //   to: user.pushToken,
+  //   title: 'Actify',
+  //   body: message,
+  //   data
+  // });
+
   return true;
 };
 

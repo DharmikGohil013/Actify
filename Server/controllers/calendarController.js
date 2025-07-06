@@ -1,36 +1,64 @@
-const Task = require('../models/Task');
 const Calendar = require('../models/Calendar');
+const Task = require('../models/Task');
 
-// Get tasks for specific date/week/month – already handled well
-
-// Add/Update/Delete events – already covered
-
-// NEW: Update Event
-exports.updateEvent = async (req, res) => {
+// Get tasks for a specific date (from query param ?date=YYYY-MM-DD)
+exports.getTasksForDate = async (req, res) => {
   try {
-    const event = await Calendar.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      req.body,
-      { new: true }
-    );
-    if (!event) return res.status(404).json({ msg: 'Event not found' });
-    res.json(event);
+    const date = new Date(req.query.date);
+    const tasks = await Task.find({ user: req.user.id, date });
+    res.json(tasks);
   } catch (err) {
-    res.status(500).json({ msg: 'Failed to update event', err: err.message });
+    res.status(500).json({ msg: 'Failed to get tasks for date', err: err.message });
   }
 };
 
-// NEW: Share Event
-exports.shareEventWithUsers = async (req, res) => {
+// Get all tasks for a week (from query param ?start=YYYY-MM-DD&end=YYYY-MM-DD)
+exports.getTasksForWeek = async (req, res) => {
   try {
-    const { userIds } = req.body;
-    const event = await Calendar.findOne({ _id: req.params.id, user: req.user.id });
-    if (!event) return res.status(404).json({ msg: 'Event not found' });
-
-    event.sharedWith = [...new Set([...event.sharedWith, ...userIds])];
-    await event.save();
-    res.json({ msg: 'Event shared', sharedWith: event.sharedWith });
+    const { start, end } = req.query;
+    const tasks = await Task.find({
+      user: req.user.id,
+      date: { $gte: new Date(start), $lte: new Date(end) }
+    });
+    res.json(tasks);
   } catch (err) {
-    res.status(500).json({ msg: 'Failed to share event', err: err.message });
+    res.status(500).json({ msg: 'Failed to get tasks for week', err: err.message });
+  }
+};
+
+// Get all calendar events
+exports.getEvents = async (req, res) => {
+  try {
+    const events = await Calendar.find({ user: req.user.id }).populate('tasks');
+    res.json(events);
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to get events', err: err.message });
+  }
+};
+
+// Add a new calendar event
+exports.addEvent = async (req, res) => {
+  try {
+    const { title, description, date, tasks = [] } = req.body;
+    const event = await Calendar.create({
+      user: req.user.id,
+      title,
+      description,
+      date,
+      tasks
+    });
+    res.json(event);
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to add event', err: err.message });
+  }
+};
+
+// Delete calendar event
+exports.deleteEvent = async (req, res) => {
+  try {
+    await Calendar.findOneAndDelete({ _id: req.params.id, user: req.user.id });
+    res.json({ msg: 'Event deleted' });
+  } catch (err) {
+    res.status(500).json({ msg: 'Failed to delete event', err: err.message });
   }
 };
