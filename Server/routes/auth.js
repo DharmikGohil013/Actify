@@ -1,12 +1,14 @@
-// /routes/auth.js
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 
-// Register new user
+// Public routes
 router.post('/register', authController.register);
-
-// Login user
 router.post('/login', authController.login);
+router.post('/verify-email', authController.verifyEmail);
+router.post('/resend-verification', authController.resendVerification);
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+router.post('/google', authController.googleOAuth); // (optional if you add it)
 
 module.exports = router;

@@ -1,21 +1,22 @@
-// /routes/calendar.js
 const express = require('express');
 const router = express.Router();
 const requireAuth = require('../middlewares/auth');
 const calendarController = require('../controllers/calendarController');
 
-// All routes require authentication
 router.use(requireAuth);
 
-// Get all tasks for a specific date
+// Events & tasks calendar views
 router.get('/tasks/date', calendarController.getTasksForDate);
-
-// Get all tasks for a specific week
 router.get('/tasks/week', calendarController.getTasksForWeek);
+router.get('/tasks/month', calendarController.getTasksForMonth); // NEW
 
-// If using Calendar model for events:
+// Calendar events CRUD
 router.get('/events', calendarController.getEvents);
 router.post('/events', calendarController.addEvent);
+router.put('/events/:id', calendarController.updateEvent); // NEW
 router.delete('/events/:id', calendarController.deleteEvent);
+
+// Shared calendar support
+router.post('/events/:id/share', calendarController.shareEventWithUsers); // NEW
 
 module.exports = router;
