@@ -266,16 +266,23 @@ export async function searchUsers(query) {
   return res.json();
 }
 
-
-
 export async function followUser(userId) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`/api/users/follow/${userId}`, {
+  const res = await fetch(`${API}/users/follow/${userId}`, {
     method: "POST",
     headers: {
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
-    },
+    }
   });
-  if (!res.ok) throw new Error("Follow failed");
-  return res.json();
+
+  const text = await res.text(); // read as text
+  try {
+    const data = JSON.parse(text);
+    if (!res.ok) throw new Error(data.msg || "Follow failed");
+    return data;
+  } catch (e) {
+    console.error("Bad JSON or HTML response:", text);
+    throw new Error("Server returned invalid response.");
+  }
 }

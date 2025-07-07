@@ -2,6 +2,7 @@
 const User = require('../models/User');
 const Task = require('../models/Task');
 
+
 // Get current user profile + stats
 exports.getProfile = async (req, res) => {
   try {
@@ -64,42 +65,63 @@ exports.getFriends = async (req, res) => {
   }
 };
 
-
 exports.searchUsers = async (req, res) => {
+  const query = req.query.q;
+  const currentUserId = req.user.id;
+
   try {
-    const query = req.query.q?.trim();
-    if (!query) return res.json({ users: [] });
+    const users = await User.find({
+      name: { $regex: query, $options: "i" },
+      _id: { $ne: currentUserId },
+    }).select("name completedTasks");
 
-    const regex = new RegExp(query, "i");
-    const users = await User.find({ name: regex }).select("_id name followers blocked");
+    const currentUser = await User.findById(currentUserId).select("friends blocked");
 
-    const enrichedUsers = await Promise.all(
-      users.map(async (u) => {
-        const completed = await Task.countDocuments({ user: u._id, status: "Completed" });
-        return {
-          _id: u._id,
-          name: u.name,
-          completedTasks: completed,
-          isFriend: u.followers?.includes(req.user?._id), // safe even if user is undefined
-          isBlocked: u.blocked?.includes(req.user?._id),
-        };
-      })
-    );
+    // fallback to empty array if undefined
+    const friendIds = currentUser?.friends || [];
+    const blockedIds = currentUser?.blocked || [];
 
-    res.json({ users: enrichedUsers });
+    const result = users.map(u => ({
+      _id: u._id,
+      name: u.name,
+      completedTasks: u.completedTasks || 0,
+      isFriend: friendIds.includes(u._id.toString()),
+      isBlocked: blockedIds.includes(u._id.toString()),
+    }));
+
+    res.json({ users: result });
   } catch (err) {
-    console.error("searchUsers error", err);
-    res.status(500).json({ msg: "Search failed" });
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
   }
 };
 
+
 // Follow user
+// controllers/userController.js
 exports.followUser = async (req, res) => {
-  const me = req.user._id;
-  const targetId = req.params.id;
+  try {
+    const userId = req.user.id; // logged-in user
+    const friendId = req.params.friendId;
 
-  if (me.toString() === targetId) return res.status(400).json({ error: "You cannot follow yourself." });
+    if (userId === friendId)
+      return res.status(400).json({ msg: "Cannot follow yourself" });
 
-  await User.findByIdAndUpdate(me, { $addToSet: { friends: targetId } });
-  res.json({ success: true });
+    const user = await User.findById(userId);
+    const friend = await User.findById(friendId);
+
+    if (!friend)
+      return res.status(404).json({ msg: "User not found" });
+
+    if (user.friends.includes(friendId))
+      return res.status(400).json({ msg: "Already following this user" });
+
+    user.friends.push(friendId);
+    await user.save(); // ❗ You MUST save the change
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Server error" });
+  }
 };

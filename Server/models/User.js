@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
   verificationToken: { type: String },
   role: { type: String, enum: ['User', 'Admin'], default: 'User' },
   isDeleted: { type: Boolean, default: false },
-  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // New: Friend list
+  friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
