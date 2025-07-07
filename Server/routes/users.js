@@ -14,5 +14,5 @@ router.put('/me', userController.updateProfile);
 // Friends
 router.post('/follow/:friendId', userController.followUser);
 router.get('/friends', userController.getFriends);
-
+router.get('/search', userController.searchUsers);
 module.exports = router;

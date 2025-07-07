@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
+import FriendsPage from "./pages/FriendsPage"; // ✅ <-- Add this line
 
 import Dashboard from "./pages/Dashboard";
 import DailyTasks from "./pages/DailyTasks";
@@ -28,78 +29,19 @@ export default function AppRoutes() {
       <Route path="/register" element={<Register />} />
 
       {/* Private routes */}
-      <Route
-        path="/"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/tasks"
-        element={
-          <PrivateRoute>
-            <DailyTasks />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/calendar"
-        element={
-          <PrivateRoute>
-            <CalendarView />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/upcoming"
-        element={
-          <PrivateRoute>
-            <UpcomingTasks />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/notifications"
-        element={
-          <PrivateRoute>
-            <Notifications />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <PrivateRoute>
-            <Settings />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <PrivateRoute>
-            <Profile />
-          </PrivateRoute>
-        }
-      />
-      <Route
-  path="/projects"
-  element={
-    <PrivateRoute>
-      <Projects />
-    </PrivateRoute>
-  }
-/>
-<Route
-  path="/projects/:projectId"
-  element={
-    <PrivateRoute>
-      <ProjectDetails />
-    </PrivateRoute>
-  }
-/>
+      <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+      <Route path="/tasks" element={<PrivateRoute><DailyTasks /></PrivateRoute>} />
+      <Route path="/calendar" element={<PrivateRoute><CalendarView /></PrivateRoute>} />
+      <Route path="/upcoming" element={<PrivateRoute><UpcomingTasks /></PrivateRoute>} />
+      <Route path="/notifications" element={<PrivateRoute><Notifications /></PrivateRoute>} />
+      <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
+      <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+      <Route path="/projects" element={<PrivateRoute><Projects /></PrivateRoute>} />
+      <Route path="/projects/:projectId" element={<PrivateRoute><ProjectDetails /></PrivateRoute>} />
+
+      {/* ✅ Friends route */}
+      <Route path="/friends" element={<PrivateRoute><FriendsPage /></PrivateRoute>} />
+
       {/* Catch-all: redirect unknown paths */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

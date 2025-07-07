@@ -52,25 +52,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Follow another user
-exports.followUser = async (req, res) => {
-  try {
-    const { friendId } = req.params;
-    const me = req.user.id;
 
-    if (me === friendId) return res.status(400).json({ msg: "You can't follow yourself." });
-
-    const user = await User.findById(me);
-    if (!user.friends.includes(friendId)) {
-      user.friends.push(friendId);
-      await user.save();
-    }
-
-    res.json({ msg: 'Followed successfully', friends: user.friends });
-  } catch (err) {
-    res.status(500).json({ msg: 'Failed to follow user', err: err.message });
-  }
-};
 
 // Get my friends
 exports.getFriends = async (req, res) => {
@@ -82,3 +64,42 @@ exports.getFriends = async (req, res) => {
   }
 };
 
+
+exports.searchUsers = async (req, res) => {
+  try {
+    const query = req.query.q?.trim();
+    if (!query) return res.json({ users: [] });
+
+    const regex = new RegExp(query, "i");
+    const users = await User.find({ name: regex }).select("_id name followers blocked");
+
+    const enrichedUsers = await Promise.all(
+      users.map(async (u) => {
+        const completed = await Task.countDocuments({ user: u._id, status: "Completed" });
+        return {
+          _id: u._id,
+          name: u.name,
+          completedTasks: completed,
+          isFriend: u.followers?.includes(req.user?._id), // safe even if user is undefined
+          isBlocked: u.blocked?.includes(req.user?._id),
+        };
+      })
+    );
+
+    res.json({ users: enrichedUsers });
+  } catch (err) {
+    console.error("searchUsers error", err);
+    res.status(500).json({ msg: "Search failed" });
+  }
+};
+
+// Follow user
+exports.followUser = async (req, res) => {
+  const me = req.user._id;
+  const targetId = req.params.id;
+
+  if (me.toString() === targetId) return res.status(400).json({ error: "You cannot follow yourself." });
+
+  await User.findByIdAndUpdate(me, { $addToSet: { friends: targetId } });
+  res.json({ success: true });
+};

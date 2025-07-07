@@ -9,6 +9,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const startNotificationCron = require('./middlewares/notificationCron');
 const startDailyReminderCron = require('./middlewares/dailyReminderCron'); // NEW: Daily email cron
 
+
 const app = express();
 
 // Connect to MongoDB
@@ -19,6 +20,7 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 app.set('trust proxy', 1);
 
 // Rate limiting

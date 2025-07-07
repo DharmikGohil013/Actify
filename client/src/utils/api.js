@@ -243,3 +243,39 @@ export async function getProjectTasks(projectId) {
   });
   return res.json();
 }
+
+
+
+export async function searchUsers(query) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`http://localhost:5000/api/users/search?q=${encodeURIComponent(query)}`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  // Check if response is ok and type is JSON
+  const contentType = res.headers.get("content-type");
+  if (!res.ok || !contentType?.includes("application/json")) {
+    const text = await res.text();
+    console.error("Invalid response:", res.status, text);
+    throw new Error("Invalid response from server");
+  }
+
+  return res.json();
+}
+
+
+
+export async function followUser(userId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`/api/users/follow/${userId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  if (!res.ok) throw new Error("Follow failed");
+  return res.json();
+}
