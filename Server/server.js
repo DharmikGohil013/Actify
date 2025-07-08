@@ -8,7 +8,7 @@ const connectDB = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
 const startNotificationCron = require('./middlewares/notificationCron');
 const startDailyReminderCron = require('./middlewares/dailyReminderCron');
-
+const extra = require('./routes/extra');
 const app = express();
 
 // DB
@@ -39,6 +39,8 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/calendar', require('./routes/calendar'));
+app.use('/api/extra', require('./routes/extra'));
+
 
 // Catch unknown routes
 app.use((req, res) => {
