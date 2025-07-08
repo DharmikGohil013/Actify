@@ -19,22 +19,30 @@ exports.register = async (req, res) => {
     await sendEmail(
   user.email,
   '🎉 Welcome to Actify!',
-  'Welcome email (plain text fallback)', // Optional plain text
+  'Welcome email (plain text fallback)',
   `
-  <div style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 30px;">
-    <div style="max-width: 600px; margin: auto; background-color: white; border-radius: 8px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.05);">
-      <div style="background-color: #4f46e5; color: white; padding: 20px 30px;">
-        <h1 style="margin: 0; font-size: 24px;">👋 Welcome to Actify, ${user.name}!</h1>
+  <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f1f5f9; padding: 40px;">
+    <div style="max-width: 600px; margin: auto; background: #ffffff; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.06); overflow: hidden;">
+      
+      <!-- Header with logo and wave -->
+      <div style="background: linear-gradient(90deg, #4f46e5, #6366f1); padding: 30px; color: white; position: relative;">
+        <div style="display: flex; align-items: center;">
+          
+          <h1 style="margin: 0; font-size: 26px;">Welcome to Actify, ${user.name}!</h1>
+        </div>
+        <svg style="position: absolute; bottom: -1px; left: 0;" width="100%" height="32" viewBox="0 0 1440 320"><path fill="#ffffff" fill-opacity="1" d="M0,288L1440,160L1440,0L0,0Z"></path></svg>
       </div>
-      <div style="padding: 30px;">
-        <p style="font-size: 16px; line-height: 1.5;">
-          Thank you for registering with <strong>Actify</strong> — your personal task and calendar assistant.
+
+      <!-- Body -->
+      <div style="padding: 36px 30px 20px 30px; color: #333;">
+        <p style="font-size: 16px; line-height: 1.7;">
+          Thanks for joining <strong>Actify</strong> — your personal task and productivity partner.
         </p>
-        <p style="font-size: 16px; line-height: 1.5;">
-          We’re excited to have you on board! You can now manage your daily tasks, set reminders, and get notifications to stay productive.
+        <p style="font-size: 16px; line-height: 1.7;">
+          Stay on top of your goals, track your daily progress, and receive smart reminders — all in one beautifully simple platform.
         </p>
 
-        <!-- SVG icon -->
+        <!-- Decorative SVG -->
         <div style="text-align: center; margin: 30px 0;">
           <svg width="100" height="100" viewBox="0 0 24 24" fill="#4f46e5" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10
@@ -42,29 +50,54 @@ exports.register = async (req, res) => {
             15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20
             8l-9 9z"/>
           </svg>
+          <p style="margin-top: 12px; font-size: 14px; color: #4f46e5;">
+            You’re all set to begin your productivity journey.
+          </p>
         </div>
 
-        <a href="https://dharmikgohil.fun/" style="
-          display: inline-block;
-          background-color: #4f46e5;
-          color: white;
-          padding: 12px 20px;
-          text-decoration: none;
-          border-radius: 5px;
-          font-weight: bold;
-        ">Get Started</a>
+        <!-- Call-to-action -->
+        <div style="text-align: center;">
+          <a href="https://dharmikgohil.fun/" style="
+            background: linear-gradient(90deg, #4f46e5, #6366f1);
+            color: white;
+            padding: 14px 28px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 15px;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+            display: inline-block;
+          ">🚀 Launch Actify Now</a>
+        </div>
 
-        <p style="font-size: 14px; color: #555; margin-top: 30px;">
-          If you didn’t sign up for Actify, you can ignore this email.
-        </p>
+        <!-- Divider -->
+        <hr style="margin: 40px 0; border: none; border-top: 1px solid #eee;" />
+
+        <!-- Feature Icons -->
+        <div style="display: flex; justify-content: space-between; text-align: center;">
+          <div style="flex: 1;">
+            <img src="https://img.icons8.com/fluency/48/null/todo-list.png" alt="Tasks" />
+            <p style="margin-top: 8px; font-size: 13px; color: #555;">Smart Tasking</p>
+          </div>
+          <div style="flex: 1;">
+            <img src="https://img.icons8.com/fluency/48/null/appointment-reminders.png" alt="Reminders" />
+            <p style="margin-top: 8px; font-size: 13px; color: #555;">Daily Reminders</p>
+          </div>
+        </div>
+
+        <!-- Note -->
+        
+      </div>
+
+      <!-- Footer -->
+      <div style="background-color: #f3f4f6; padding: 18px; text-align: center; font-size: 12px; color: #999;">
+        &copy; ${new Date().getFullYear()} Actify · Empowering your daily success · Built with ❤️ by Dharmik Gohil
       </div>
     </div>
-    <p style="text-align: center; font-size: 12px; color: #999; margin-top: 20px;">
-      &copy; ${new Date().getFullYear()} Actify. All rights reserved.
-    </p>
   </div>
   `
 );
+
 
 
     const token = generateToken(user._id);
