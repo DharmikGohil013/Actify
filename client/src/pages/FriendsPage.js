@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { searchUsers, followUser } from "../utils/api";
+import LoaderOverlay from "../components/Loader"; // adjust path if needed
+
 
 export default function FriendsPage() {
   const [query, setQuery] = useState("");
@@ -72,7 +74,7 @@ export default function FriendsPage() {
         }}
       />
 
-      {loading && <div>Searching...</div>}
+      {loading && <LoaderOverlay />}
 
       {!loading && Object.keys(results).length === 0 && query && (
         <div style={{ color: "#999" }}>No users found.</div>
@@ -95,18 +97,21 @@ export default function FriendsPage() {
             <ul style={{ listStyle: "none", padding: 0 }}>
               {results[letter].map(user => (
                 <li
-                  key={user._id}
-                  style={{
-                    background: "#f9f9ff",
-                    border: "1px solid #dce4f4",
-                    borderRadius: 10,
-                    padding: 18,
-                    marginBottom: 10,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                  }}
-                >
+  key={user._id}
+  style={{
+    background: "linear-gradient(90deg, #f2f6ff, #eef7ff)",
+    border: "1px solid #d6e4ff",
+    borderRadius: 14,
+    padding: "18px 20px",
+    marginBottom: 12,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    boxShadow: "0 4px 12px #1976d219",
+    transition: "transform 0.2s ease",
+  }}
+>
+
                   <div>
                     <div style={{ fontWeight: 700, fontSize: 16 }}>{user.name}</div>
                     <div style={{ fontSize: 13, color: "#555" }}>
@@ -120,20 +125,24 @@ export default function FriendsPage() {
                   </div>
 
                   {!user.isFriend && !user.isBlocked && (
-                    <button
-                      onClick={() => handleFollow(user._id)}
-                      style={{
-                        background: "#1976d2",
-                        color: "#fff",
-                        fontWeight: 700,
-                        border: "none",
-                        borderRadius: 20,
-                        padding: "8px 16px",
-                        cursor: "pointer"
-                      }}
-                    >
-                      + Follow
-                    </button>
+                   <button
+  onClick={() => handleFollow(user._id)}
+  style={{
+    background: "linear-gradient(90deg,#1976d2,#3a8efd)",
+    color: "#fff",
+    fontWeight: 700,
+    border: "none",
+    borderRadius: 20,
+    padding: "8px 20px",
+    fontSize: 14,
+    boxShadow: "0 2px 6px #1976d230",
+    cursor: "pointer",
+    transition: "all 0.2s ease-in-out",
+  }}
+>
+  + Follow
+</button>
+
                   )}
                   {user.isFriend && (
                     <div style={{ color: "#43e97b", fontWeight: 700 }}>Following ✅</div>

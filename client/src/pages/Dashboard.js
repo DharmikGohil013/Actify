@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import LoaderOverlay from "../components/Loader";
+
 import {
   getTodayTasks,
   getUpcomingTasks,
@@ -169,12 +171,8 @@ export default function Dashboard() {
   // === Incomplete = today's tasks with status "Incomplete"
   const incomplete = todayTasks.filter((t) => t.status === "Incomplete");
 
-  if (loading)
-    return (
-      <div style={{ padding: 32, color: "#253e83", fontWeight: 700 }}>
-        Loading your Dashboard...
-      </div>
-    );
+  if (loading) return <LoaderOverlay />;
+  
 
   return (
     <div
