@@ -1,14 +1,19 @@
 import React, { useEffect, useState } from "react";
+import LoaderOverlay from "../components/Loader";
 import {
   getUserProfile,
   getTodayTasks,
   getUpcomingTasks,
-  searchUsers
+  searchUsers,
 } from "../utils/api";
 
 // --- Avatar Helper ---
 function getInitials(name = "") {
-  return name.slice(0, 2).toUpperCase();
+  if (!name || typeof name !== "string") return "??";
+  const words = name.trim().split(" ").filter(word => word.length > 0);
+  if (words.length === 0) return "??";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + (words[1] ? words[1][0] : "")).toUpperCase();
 }
 
 // --- Progress Circle ---
@@ -73,37 +78,45 @@ const quotes = [
   "Each day is a new opportunity to improve.",
   "Stay focused, stay positive, keep moving.",
   "Small progress is still progress!",
-  "You got this. Today is your day."
+  "You got this. Today is your day.",
 ];
 
-// --- Main Profile Component ---
+// --- Main Component ---
 export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [todayTasks, setTodayTasks] = useState([]);
   const [upcomingTasks, setUpcomingTasks] = useState([]);
   const [followers, setFollowers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [quote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
 
   useEffect(() => {
     async function fetchData() {
-      const user = await getUserProfile();
-      setProfile(user);
-      setTodayTasks(await getTodayTasks());
-      setUpcomingTasks(await getUpcomingTasks());
+      setLoading(true);
+      try {
+        const user = await getUserProfile();
+        setProfile(user);
+        setTodayTasks(await getTodayTasks());
+        setUpcomingTasks(await getUpcomingTasks());
 
-      const res = await searchUsers("");
-      const allUsers = Array.isArray(res) ? res : res.users || [];
+        const res = await searchUsers("");
+        const allUsers = Array.isArray(res) ? res : res.users || [];
 
-      // ✅ Show only users *I* follow
-      const friends = allUsers.filter(
-        u => Array.isArray(user.friends) && user.friends.includes(u._id)
-      );
-      setFollowers(friends);
+        const friendIds = (user.friends || []).map((f) => (typeof f === "string" ? f : f._id));
+        const friends = allUsers.filter((u) => u._id && friendIds.includes(u._id) && u.name);
+        setFollowers(friends);
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchData();
   }, []);
 
-  if (!profile) return <div style={{ padding: 40, textAlign: "center", fontWeight: 800 }}>Loading profile...</div>;
+  if (loading || !profile) {
+    return <LoaderOverlay />;
+  }
 
   const completed = todayTasks.filter((t) => t.status === "Complete").length;
   const total = todayTasks.length || 1;
@@ -122,7 +135,7 @@ export default function Profile() {
       alignItems: "flex-start"
     }}>
 
-      {/* --- Profile Card --- */}
+      {/* Profile Card */}
       <div style={{
         maxWidth: 420,
         width: "100%",
@@ -142,7 +155,7 @@ export default function Profile() {
           {getInitials(profile.name)}
         </div>
 
-        <div style={{ fontSize: 28, fontWeight: 900, color: "#1976d2" }}>{profile.name}</div>
+        <div style={{ fontSize: 28, fontWeight: 900, color: "#1976d2" }}>{profile.name || "Unknown User"}</div>
         <div style={{ color: "#555", fontWeight: 600, fontSize: 15, marginBottom: 20 }}>{profile.email}</div>
 
         <div style={{
@@ -165,9 +178,9 @@ export default function Profile() {
         </div>
       </div>
 
-      {/* --- Right Section --- */}
+      {/* Right Side */}
       <div style={{ flex: 1, maxWidth: 640, width: "100%" }}>
-        {/* --- Quote --- */}
+        {/* Quote */}
         <div style={{
           background: "linear-gradient(93deg,#dbeafe,#e6fffa 80%)",
           borderRadius: 17,
@@ -182,7 +195,7 @@ export default function Profile() {
           💡 {quote}
         </div>
 
-        {/* --- Task Stats --- */}
+        {/* Task Stats */}
         <div style={{
           background: "#fff",
           borderRadius: 17,
@@ -196,7 +209,7 @@ export default function Profile() {
           <TaskStats tasks={todayTasks} />
         </div>
 
-        {/* --- Upcoming Tasks --- */}
+        {/* Upcoming Tasks */}
         <div style={{
           background: "linear-gradient(93deg,#fffde7 60%,#e3fceb 140%)",
           borderRadius: 17,
@@ -218,7 +231,7 @@ export default function Profile() {
           </ul>
         </div>
 
-        {/* --- Friends I Follow --- */}
+        {/* Friends I Follow */}
         <div style={{
           background: "#fff",
           borderRadius: 17,
@@ -231,8 +244,23 @@ export default function Profile() {
           {followers.length > 0 ? (
             <ul style={{ listStyle: "none", padding: 0, color: "#1976d2", fontWeight: 700 }}>
               {followers.map((f) => (
-                <li key={f._id} style={{ marginBottom: 10 }}>
-                  {getInitials(f.name)} — {f.name}
+                <li key={f._id} style={{ marginBottom: 10, display: "flex", alignItems: "center" }}>
+                  <span style={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    background: "#1976d2",
+                    color: "#fff",
+                    fontWeight: 900,
+                    fontSize: 16,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginRight: 10
+                  }}>
+                    {getInitials(f.name)}
+                  </span>
+                  {f.name || "Unknown Friend"}
                 </li>
               ))}
             </ul>

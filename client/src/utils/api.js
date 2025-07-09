@@ -286,3 +286,4 @@ export async function followUser(userId) {
     throw new Error("Server returned invalid response.");
   }
 }
+
