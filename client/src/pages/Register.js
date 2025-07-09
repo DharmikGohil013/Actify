@@ -1,11 +1,21 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register } from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
+import LoaderOverlay from "../components/Loader";
+
 
 export default function Register() {
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true); // Page loader
+const [submitting, setSubmitting] = useState(false); // While registering
+
+useEffect(() => {
+  const timeout = setTimeout(() => setLoading(false), 800); // delay for splash loader
+  return () => clearTimeout(timeout);
+}, []);
+
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -16,7 +26,12 @@ export default function Register() {
       setError("Please fill all fields");
       return;
     }
-    const res = await register(form.name, form.email, form.password);
+   setSubmitting(true);
+const res = await register(form.name, form.email, form.password);
+setSubmitting(false);
+
+
+    
     if (res.token && res.user) {
       loginUser(res.user, res.token);
       navigate("/");
@@ -24,6 +39,7 @@ export default function Register() {
       setError(res.msg || res.message || "Registration failed");
     }
   }
+if (loading || submitting) return <LoaderOverlay />;
 
   return (
     <div style={{
@@ -205,4 +221,5 @@ export default function Register() {
       </footer>
     </div>
   );
+  
 }
