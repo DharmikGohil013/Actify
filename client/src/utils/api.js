@@ -131,8 +131,17 @@ export async function getUserProfile() {
   const res = await fetch(`${API}/users/me`, {
     headers: authHeaders(),
   });
-  return res.json();
+  const contentType = res.headers.get("content-type");
+  if (!res.ok || !contentType?.includes("application/json")) {
+    const text = await res.text();
+    console.error("Invalid response from getUserProfile:", res.status, text);
+    throw new Error("Invalid response from server");
+  }
+  const data = await res.json();
+  console.log("getUserProfile response:", data); // Debug log
+  return data;
 }
+
 
 export async function login(email, password) {
   const res = await fetch(`${API}/auth/login`, {
@@ -287,3 +296,16 @@ export async function followUser(userId) {
   }
 }
 
+export async function getFriends() {
+  const response = await fetch(`${API}/users/friends`, {
+    method: 'GET',
+    headers: authHeaders(),
+  });
+  const contentType = response.headers.get("content-type");
+  if (!response.ok || !contentType?.includes("application/json")) {
+    const text = await response.text();
+    console.error("Invalid response from getFriends:", response.status, text);
+    throw new Error("Invalid response from server");
+  }
+  return response.json();
+}
