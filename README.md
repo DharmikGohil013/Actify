@@ -42,8 +42,8 @@ Violators may face legal consequences under unauthorized use and software piracy
 ## 👨‍💻 Author
 
 **Dharmik Gohil**  
-📧 Email: dharmikgohil1234@gmail.com  
-📱 Mobile: +91 91737 43883  
+📧 Email: dharmikgohil395003@gmail.com  
+📱 Mobile: +91 9624105587 
 🌐 Website: [https://dharmikgohil.fun](https://dharmikgohil.fun)
 
 ---
