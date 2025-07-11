@@ -2,7 +2,8 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const sendEmail = require('../utils/sendEmail'); // Add at the top
-
+const OtpToken = require('../models/OtpToken');
+const crypto = require('crypto');
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '7d' });
 
@@ -128,3 +129,53 @@ exports.login = async (req, res) => {
 };
 
 
+// ✅ Step 1: Send OTP
+exports.sendOtp = async (req, res) => {
+  const { email } = req.body;
+  const existingUser = await User.findOne({ email });
+  if (existingUser) return res.status(400).json({ msg: "Email already registered" });
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 mins
+
+  await OtpToken.deleteMany({ email }); // Clear old OTPs
+  await OtpToken.create({ email, otp, expiresAt });
+
+  await sendEmail(
+    email,
+    "Your Actify OTP",
+    `Your OTP is: ${otp}`,
+    `<div style="font-family:sans-serif; font-size:16px">
+      <p>Your OTP for Actify registration:</p>
+      <h2>${otp}</h2>
+      <p>This OTP will expire in 5 minutes.</p>
+    </div>`
+  );
+
+  res.json({ msg: "OTP sent to email" });
+};
+
+// ✅ Step 2: Verify OTP and Register
+exports.verifyOtpAndRegister = async (req, res) => {
+  const { name, email, password, otp } = req.body;
+  const otpDoc = await OtpToken.findOne({ email });
+
+  if (!otpDoc || otpDoc.otp !== otp || Date.now() > otpDoc.expiresAt) {
+    return res.status(400).json({ msg: "Invalid or expired OTP" });
+  }
+
+  const hashed = await bcrypt.hash(password, 10);
+  const user = await User.create({ name, email, password: hashed, verified: true });
+
+  await OtpToken.deleteOne({ email });
+
+  await sendEmail( // Optional welcome email
+    email,
+    '🎉 Welcome to Actify!',
+    'Welcome email text',
+    `<h2>Welcome ${name}!</h2><p>Your account has been successfully created.</p>`
+  );
+
+  const token = generateToken(user._id);
+  res.status(201).json({ token, user: { id: user._id, name, email } });
+};
