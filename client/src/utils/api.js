@@ -309,3 +309,30 @@ export async function getFriends() {
   }
   return response.json();
 }
+
+export async function sendOTP(email) {
+  const res = await fetch("/api/auth/send-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  return res.json();
+}
+
+export async function verifyOTP(email, otp) {
+  const res = await fetch("/api/auth/verify-otp", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp }),
+  });
+  return res.json();
+}
+
+export async function createAccount(name, email, password) {
+  const res = await fetch("/api/auth/create-account", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, email, password }),
+  });
+  return res.json();
+}

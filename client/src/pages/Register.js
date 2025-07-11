@@ -1,17 +1,19 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { register } from "../utils/api";
+import { sendOTP, verifyOTP, createAccount } from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
 import LoaderOverlay from "../components/Loader";
-import "./Register.css"; // Import the CSS file
+import "./Register.css";
 
 export default function Register() {
   const { loginUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(true); // Splash loader
-  const [submitting, setSubmitting] = useState(false); // Form submit state
+  const [loading, setLoading] = useState(true); // splash loader
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1); // 1 = email, 2 = OTP, 3 = details
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -23,20 +25,41 @@ export default function Register() {
     e.preventDefault();
     setError("");
 
-    if (!form.name || !form.email || !form.password) {
-      setError("Please fill all fields");
-      return;
+    if (step === 1) {
+      if (!form.email) return setError("Please enter your email");
+      setSubmitting(true);
+      const res = await sendOTP(form.email);
+      setSubmitting(false);
+      if (res.success) {
+        setStep(2);
+      } else {
+        setError(res.msg || "Failed to send OTP");
+      }
     }
 
-    setSubmitting(true);
-    const res = await register(form.name, form.email, form.password);
-    setSubmitting(false);
+    else if (step === 2) {
+      if (!otp) return setError("Enter the OTP sent to your email");
+      setSubmitting(true);
+      const res = await verifyOTP(form.email, otp);
+      setSubmitting(false);
+      if (res.success) {
+        setStep(3);
+      } else {
+        setError(res.msg || "Invalid OTP");
+      }
+    }
 
-    if (res.token && res.user) {
-      loginUser(res.user, res.token);
-      navigate("/");
-    } else {
-      setError(res.msg || res.message || "Registration failed");
+    else if (step === 3) {
+      if (!form.name || !form.password) return setError("All fields required");
+      setSubmitting(true);
+      const res = await createAccount(form.name, form.email, form.password);
+      setSubmitting(false);
+      if (res.token && res.user) {
+        loginUser(res.user, res.token);
+        navigate("/");
+      } else {
+        setError(res.msg || "Account creation failed");
+      }
     }
   }
 
@@ -51,14 +74,7 @@ export default function Register() {
             <span className="brand-name">Actify</span>
           </div>
 
-          <svg
-            width="300"
-            height="200"
-            viewBox="0 0 300 200"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            style={{ display: "block", margin: "0 auto" }}
-          >
+          <svg width="300" height="200" viewBox="0 0 300 200">
             <ellipse cx="150" cy="170" rx="110" ry="30" fill="#1976d2" fillOpacity="0.09" />
             <circle cx="150" cy="125" r="28" fill="#fff500" fillOpacity="0.7" />
             <g stroke="#fff500" strokeWidth="3" opacity="0.6">
@@ -111,32 +127,57 @@ export default function Register() {
 
         <div className="register-form-container">
           <h2>Register</h2>
-          <p>Let's build your productive life, together!</p>
+          <p>
+            {step === 1 && "Enter your email to receive an OTP"}
+            {step === 2 && "Enter the OTP sent to your email"}
+            {step === 3 && "Complete your account setup"}
+          </p>
+
           {error && <div style={{ color: "#e74c3c", marginBottom: 12, textAlign: "center" }}>{error}</div>}
 
           <form onSubmit={handleSubmit} className="register-form">
-            <input
-              type="text"
-              placeholder="Name"
-              value={form.name}
-              onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email"
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              required
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
-              required
-            />
-            <button type="submit">Register</button>
+            {step === 1 && (
+              <input
+                type="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                required
+              />
+            )}
+
+            {step === 2 && (
+              <input
+                type="text"
+                placeholder="Enter OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+            )}
+
+            {step === 3 && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={form.name}
+                  onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                  required
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={form.password}
+                  onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                  required
+                />
+              </>
+            )}
+
+            <button type="submit">
+              {step === 1 ? "Send OTP" : step === 2 ? "Verify OTP" : "Create Account"}
+            </button>
           </form>
 
           <div className="login-redirect">
