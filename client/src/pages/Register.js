@@ -128,9 +128,9 @@ export default function Register() {
         <div className="register-form-container">
           <h2>Register</h2>
           <p>
-            {step === 1 && "Enter your email to receive an OTP"}
-            {step === 2 && "Enter the OTP sent to your email"}
-            {step === 3 && "Complete your account setup"}
+            {step === 1 && "Enter your email to receive verification code"}
+            {step === 2 && `Verification code sent to ${form.email}`}
+            {step === 3 && "Complete your account information"}
           </p>
 
           {error && <div style={{ color: "#e74c3c", marginBottom: 12, textAlign: "center" }}>{error}</div>}
@@ -147,36 +147,50 @@ export default function Register() {
             )}
 
             {step === 2 && (
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-              />
+              <>
+                <input
+                  type="text"
+                  placeholder="Enter 6-digit verification code"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  maxLength="6"
+                  required
+                />
+                <div style={{ fontSize: "14px", color: "#666", textAlign: "center", marginTop: "8px" }}>
+                  Didn't receive the code? <button type="button" style={{ background: "none", border: "none", color: "#1976d2", cursor: "pointer", textDecoration: "underline" }} onClick={() => setStep(1)}>Resend</button>
+                </div>
+              </>
             )}
 
             {step === 3 && (
               <>
                 <input
+                  type="email"
+                  placeholder="Email"
+                  value={form.email}
+                  readOnly
+                  style={{ backgroundColor: "#f8f9fa", cursor: "not-allowed" }}
+                />
+                <input
                   type="text"
-                  placeholder="Name"
+                  placeholder="Full Name"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                   required
                 />
                 <input
                   type="password"
-                  placeholder="Password"
+                  placeholder="Create Password"
                   value={form.password}
                   onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
                   required
+                  minLength="6"
                 />
               </>
             )}
 
             <button type="submit">
-              {step === 1 ? "Send OTP" : step === 2 ? "Verify OTP" : "Create Account"}
+              {step === 1 ? "Send Verification Code" : step === 2 ? "Verify Code" : "Create Account"}
             </button>
           </form>
 
