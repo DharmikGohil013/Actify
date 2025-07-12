@@ -1,4 +1,4 @@
-const API = "https://actify.onrender.com/api"; // Include `/api` if your server uses it!
+const API = "http://localhost:5000/api"; // Include `/api` if your server uses it!
 
 // Change to your backend URL if needed
 
@@ -311,7 +311,7 @@ export async function getFriends() {
 }
 
 export async function sendOTP(email) {
-  const res = await fetch("/api/auth/send-otp", {
+  const res = await fetch(`${API}/auth/send-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -320,7 +320,7 @@ export async function sendOTP(email) {
 }
 
 export async function verifyOTP(email, otp) {
-  const res = await fetch("/api/auth/verify-otp", {
+  const res = await fetch(`${API}/auth/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, otp }),
@@ -329,7 +329,7 @@ export async function verifyOTP(email, otp) {
 }
 
 export async function createAccount(name, email, password) {
-  const res = await fetch("/api/auth/create-account", {
+  const res = await fetch(`${API}/auth/create-account`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password }),
