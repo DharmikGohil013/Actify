@@ -4,6 +4,7 @@ import { login } from "../utils/api";
 import { AuthContext } from "../context/AuthContext";
 import LoaderOverlay from "../components/Loader";
 import "./styles.css"; // Import the CSS file
+import "./Register.css";
 
 export default function Login() {
   const { loginUser } = useContext(AuthContext);
@@ -42,10 +43,10 @@ export default function Login() {
         <div className="main-content">
           {/* LEFT MOTIVATION SECTION */}
           <div className="motivation-section">
-            <div className="logo-container">
-              <img src="w..png" alt="Actify Logo" className="logo" />
-              <span className="brand-font">Actify</span>
-            </div>
+            <div className="brand-header">
+            <img src="w..png" alt="Actify Logo" />
+            <span className="brand-name">Actify</span>
+          </div>
             <svg
               width="300"
               height="200"
