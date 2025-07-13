@@ -12,12 +12,26 @@ function authHeaders() {
 }
 
 export async function getTodayTasks() {
-  const today = new Date();
-  const dateString = today.toISOString().split("T")[0];
-  const res = await fetch(`${API}/tasks?date=${dateString}`, {
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const today = new Date();
+    const dateString = today.toISOString().split("T")[0];
+    const res = await fetch(`${API}/tasks?date=${dateString}`, {
+      headers: authHeaders(),
+    });
+    
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("Invalid response from getTodayTasks:", res.status, text);
+      return []; // Return empty array as fallback
+    }
+    
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error in getTodayTasks:", error);
+    return []; // Return empty array as fallback
+  }
 }
 
 export async function getTasksForDate(dateString) {
@@ -35,17 +49,45 @@ export async function getTasksForWeek(weekStartDate) {
 }
 
 export async function getUpcomingTasks() {
-  const res = await fetch(`${API}/tasks?upcoming=1`, {
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${API}/tasks?upcoming=1`, {
+      headers: authHeaders(),
+    });
+    
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("Invalid response from getUpcomingTasks:", res.status, text);
+      return []; // Return empty array as fallback
+    }
+    
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error in getUpcomingTasks:", error);
+    return []; // Return empty array as fallback
+  }
 }
 
 export async function getMissedTasks() {
-  const res = await fetch(`${API}/tasks?missed=1`, {
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${API}/tasks?missed=1`, {
+      headers: authHeaders(),
+    });
+    
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("Invalid response from getMissedTasks:", res.status, text);
+      return []; // Return empty array as fallback
+    }
+    
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error in getMissedTasks:", error);
+    return []; // Return empty array as fallback
+  }
 }
 
 export async function addTask(task) {
@@ -83,10 +125,24 @@ export async function toggleTaskStatus(id) {
 }
 
 export async function getNotifications() {
-  const res = await fetch(`${API}/notifications`, {
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${API}/notifications`, {
+      headers: authHeaders(),
+    });
+    
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("Invalid response from getNotifications:", res.status, text);
+      return []; // Return empty array as fallback
+    }
+    
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (error) {
+    console.error("Error in getNotifications:", error);
+    return []; // Return empty array as fallback
+  }
 }
 
 export async function markNotificationRead(id) {
@@ -128,18 +184,47 @@ export async function updateSettings(settings) {
 }
 
 export async function getUserProfile() {
-  const res = await fetch(`${API}/users/me`, {
-    headers: authHeaders(),
-  });
-  const contentType = res.headers.get("content-type");
-  if (!res.ok || !contentType?.includes("application/json")) {
-    const text = await res.text();
-    console.error("Invalid response from getUserProfile:", res.status, text);
-    throw new Error("Invalid response from server");
+  try {
+    const res = await fetch(`${API}/users/me`, {
+      headers: authHeaders(),
+    });
+    
+    const contentType = res.headers.get("content-type");
+    if (!res.ok || !contentType?.includes("application/json")) {
+      const text = await res.text();
+      console.error("Invalid response from getUserProfile:", res.status, text);
+      // Return a default profile object as fallback
+      return { 
+        name: "User", 
+        email: "", 
+        _id: null,
+        error: true,
+        errorMessage: `Server error: ${res.status}` 
+      };
+    }
+    
+    const data = await res.json();
+    console.log("getUserProfile response:", data); // Debug log
+    
+    // Ensure the profile has required fields
+    return {
+      name: data.name || "User",
+      email: data.email || "",
+      _id: data._id || null,
+      ...data,
+      error: false
+    };
+  } catch (error) {
+    console.error("Error in getUserProfile:", error);
+    // Return a default profile object as fallback
+    return { 
+      name: "User", 
+      email: "", 
+      _id: null,
+      error: true,
+      errorMessage: error.message 
+    };
   }
-  const data = await res.json();
-  console.log("getUserProfile response:", data); // Debug log
-  return data;
 }
 
 

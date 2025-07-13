@@ -12,14 +12,31 @@ import "./Dashboard.css";
 // --- Premium Avatar with glassmorphic design ---
 function Avatar({ name }) {
   const [isHovered, setIsHovered] = useState(false);
-  const letters = name
-    ? name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
+  
+  // Improved initials logic
+  const getInitials = (name) => {
+    if (!name || typeof name !== 'string') return "U";
+    
+    // Trim whitespace and split by spaces
+    const trimmedName = name.trim();
+    if (!trimmedName) return "U";
+    
+    const nameParts = trimmedName.split(/\s+/); // Split by one or more whitespace characters
+    
+    if (nameParts.length === 1) {
+      // Single name: take first two characters
+      return nameParts[0].slice(0, 2).toUpperCase();
+    } else {
+      // Multiple names: take first character of first two parts
+      return nameParts
         .slice(0, 2)
-        .toUpperCase()
-    : "U";
+        .map(part => part.charAt(0))
+        .join("")
+        .toUpperCase();
+    }
+  };
+
+  const letters = getInitials(name);
 
   return (
     <div 
@@ -46,10 +63,13 @@ function Avatar({ name }) {
         transform: isHovered ? "scale(1.05)" : "scale(1)",
         textShadow: "0 2px 8px rgba(0, 0, 0, 0.3)",
         cursor: "pointer",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif"
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+        textAlign: "center",
+        lineHeight: 1
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      title={name || "User"}
     >
       {letters}
     </div>
@@ -332,24 +352,91 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [profile, setProfile] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      const [tasks, upc, missed, notifs, prof] = await Promise.all([
-        getTodayTasks(),
-        getUpcomingTasks(),
-        getMissedTasks(),
-        getNotifications(),
-        getUserProfile(),
-      ]);
-      setTodayTasks(tasks);
-      setUpcoming(upc);
-      setMissed(missed);
-      setNotifications((notifs || []).slice(0, 3));
-      setProfile(prof);
-      setLoading(false);
-      setTimeout(() => setIsLoaded(true), 100);
+      setErrors({}); // Reset errors
+      
+      try {
+        // Use Promise.allSettled instead of Promise.all to handle individual failures
+        const [tasksResult, upcResult, missedResult, notifsResult, profResult] = await Promise.allSettled([
+          getTodayTasks(),
+          getUpcomingTasks(),
+          getMissedTasks(),
+          getNotifications(),
+          getUserProfile(),
+        ]);
+
+        // Handle each result individually
+        const newErrors = {};
+
+        if (tasksResult.status === 'fulfilled') {
+          setTodayTasks(tasksResult.value || []);
+        } else {
+          console.error('Failed to fetch today tasks:', tasksResult.reason);
+          newErrors.todayTasks = tasksResult.reason?.message || 'Failed to load today\'s tasks';
+          setTodayTasks([]);
+        }
+
+        if (upcResult.status === 'fulfilled') {
+          setUpcoming(upcResult.value || []);
+        } else {
+          console.error('Failed to fetch upcoming tasks:', upcResult.reason);
+          newErrors.upcoming = upcResult.reason?.message || 'Failed to load upcoming tasks';
+          setUpcoming([]);
+        }
+
+        if (missedResult.status === 'fulfilled') {
+          setMissed(missedResult.value || []);
+        } else {
+          console.error('Failed to fetch missed tasks:', missedResult.reason);
+          newErrors.missed = missedResult.reason?.message || 'Failed to load missed tasks';
+          setMissed([]);
+        }
+
+        if (notifsResult.status === 'fulfilled') {
+          setNotifications((notifsResult.value || []).slice(0, 3));
+        } else {
+          console.error('Failed to fetch notifications:', notifsResult.reason);
+          newErrors.notifications = notifsResult.reason?.message || 'Failed to load notifications';
+          setNotifications([]);
+        }
+
+        if (profResult.status === 'fulfilled') {
+          const profileData = profResult.value;
+          if (profileData?.error) {
+            console.error('Profile data contains error:', profileData.errorMessage);
+            newErrors.profile = profileData.errorMessage || 'Failed to load profile';
+          }
+          setProfile(profileData);
+        } else {
+          console.error('Failed to fetch profile:', profResult.reason);
+          newErrors.profile = profResult.reason?.message || 'Failed to load profile';
+          setProfile({ name: "User", email: "", _id: null, error: true });
+        }
+
+        // Set errors if any occurred
+        if (Object.keys(newErrors).length > 0) {
+          setErrors(newErrors);
+          console.warn('Some API calls failed:', newErrors);
+        }
+
+      } catch (error) {
+        console.error('Unexpected error in fetchData:', error);
+        setErrors({ general: 'An unexpected error occurred while loading data' });
+        
+        // Set fallback data
+        setTodayTasks([]);
+        setUpcoming([]);
+        setMissed([]);
+        setNotifications([]);
+        setProfile({ name: "User", email: "", _id: null, error: true });
+      } finally {
+        setLoading(false);
+        setTimeout(() => setIsLoaded(true), 100);
+      }
     }
 
     fetchData();
