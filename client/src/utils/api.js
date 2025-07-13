@@ -2,6 +2,49 @@ const API = "http://localhost:5000/api"; // Include `/api` if your server uses i
 
 // Change to your backend URL if needed
 
+// Network connectivity check
+export async function checkServerHealth() {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    
+    const res = await fetch(`${API}/health`, {
+      method: 'GET',
+      signal: controller.signal,
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (res.ok) {
+      return { 
+        status: 'online', 
+        message: 'Server is reachable',
+        statusCode: res.status 
+      };
+    } else {
+      return { 
+        status: 'error', 
+        message: `Server responded with status ${res.status}`,
+        statusCode: res.status 
+      };
+    }
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      return { 
+        status: 'timeout', 
+        message: 'Server connection timed out (>5s)',
+        error: error.message 
+      };
+    }
+    return { 
+      status: 'offline', 
+      message: 'Cannot reach server',
+      error: error.message 
+    };
+  }
+}
+
 function getToken() {
   return localStorage.getItem("token");
 }

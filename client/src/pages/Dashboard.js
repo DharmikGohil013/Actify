@@ -6,8 +6,153 @@ import {
   getMissedTasks,
   getNotifications,
   getUserProfile,
+  checkServerHealth,
 } from "../utils/api";
 import "./Dashboard.css";
+
+// --- Error Notification Component ---
+function ErrorNotification({ errors, onDismiss }) {
+  const [serverStatus, setServerStatus] = useState(null);
+  const [checkingServer, setCheckingServer] = useState(false);
+
+  if (!errors || Object.keys(errors).length === 0) return null;
+
+  const checkServer = async () => {
+    setCheckingServer(true);
+    try {
+      const status = await checkServerHealth();
+      setServerStatus(status);
+    } catch (error) {
+      setServerStatus({ 
+        status: 'error', 
+        message: 'Failed to check server status',
+        error: error.message 
+      });
+    } finally {
+      setCheckingServer(false);
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'online': return '#34C759';
+      case 'timeout': return '#FF9500';
+      case 'offline': 
+      case 'error': 
+      default: return '#FF3B30';
+    }
+  };
+
+  return (
+    <div style={{
+      position: "fixed",
+      top: 20,
+      right: 20,
+      zIndex: 1000,
+      maxWidth: 400,
+      background: "rgba(255, 59, 48, 0.95)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
+      borderRadius: 16,
+      padding: "16px 20px",
+      color: "white",
+      fontSize: 14,
+      fontWeight: 500,
+      boxShadow: "0 10px 30px rgba(255, 59, 48, 0.3)",
+      animation: "fadeInUp 0.3s ease-out"
+    }}>
+      <div style={{ 
+        display: "flex", 
+        alignItems: "center", 
+        justifyContent: "space-between",
+        marginBottom: Object.keys(errors).length > 1 ? 8 : 0
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <AlertIcon color="white" size={20} />
+          <span style={{ fontWeight: 600 }}>
+            {Object.keys(errors).length === 1 ? "Connection Issue" : "Multiple Connection Issues"}
+          </span>
+        </div>
+        {onDismiss && (
+          <button
+            onClick={onDismiss}
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              cursor: "pointer",
+              fontSize: 18,
+              padding: 4,
+              borderRadius: 4,
+              opacity: 0.8
+            }}
+            onMouseEnter={(e) => e.target.style.opacity = 1}
+            onMouseLeave={(e) => e.target.style.opacity = 0.8}
+          >
+            ×
+          </button>
+        )}
+      </div>
+      
+      {Object.values(errors).map((error, index) => (
+        <div key={index} style={{ 
+          fontSize: 13, 
+          opacity: 0.9,
+          marginTop: index > 0 ? 4 : 0
+        }}>
+          • {error}
+        </div>
+      ))}
+
+      {/* Server status section */}
+      <div style={{ 
+        marginTop: 12, 
+        paddingTop: 12, 
+        borderTop: "1px solid rgba(255, 255, 255, 0.2)",
+        display: "flex",
+        alignItems: "center",
+        gap: 8
+      }}>
+        <button
+          onClick={checkServer}
+          disabled={checkingServer}
+          style={{
+            background: "rgba(255, 255, 255, 0.2)",
+            border: "1px solid rgba(255, 255, 255, 0.3)",
+            borderRadius: 8,
+            color: "white",
+            padding: "4px 8px",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: checkingServer ? "not-allowed" : "pointer",
+            opacity: checkingServer ? 0.6 : 1,
+            transition: "all 0.2s ease"
+          }}
+        >
+          {checkingServer ? "Checking..." : "Check Server"}
+        </button>
+        
+        {serverStatus && (
+          <div style={{
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 4
+          }}>
+            <div style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: getStatusColor(serverStatus.status)
+            }} />
+            <span style={{ opacity: 0.9 }}>{serverStatus.message}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // --- Premium Avatar with glassmorphic design ---
 function Avatar({ name }) {
@@ -217,7 +362,31 @@ function TaskItem({ task, index }) {
 }
 
 // --- Premium Task List with glassmorphic cards ---
-function TaskList({ tasks, emptyText, sectionColor = "#007AFF" }) {
+function TaskList({ tasks, emptyText, sectionColor = "#007AFF", errorMessage = null }) {
+  if (errorMessage) {
+    return (
+      <div style={{ 
+        color: "#FF3B30", 
+        padding: "32px 24px", 
+        fontWeight: 500,
+        textAlign: "center",
+        fontSize: 16,
+        fontStyle: "italic",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif",
+        background: "rgba(255, 59, 48, 0.1)",
+        borderRadius: 12,
+        border: "1px solid rgba(255, 59, 48, 0.2)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8
+      }}>
+        <AlertIcon color="#FF3B30" size={20} />
+        {errorMessage}
+      </div>
+    );
+  }
+
   if (!tasks || tasks.length === 0)
     return (
       <div style={{ 
@@ -445,10 +614,81 @@ export default function Dashboard() {
   const incomplete = todayTasks.filter((t) => t.status === "Incomplete");
   const greeting = getGreeting();
 
+  // Function to retry fetching data
+  const retryFetch = async () => {
+    setLoading(true);
+    setErrors({});
+    
+    try {
+      const [tasksResult, upcResult, missedResult, notifsResult, profResult] = await Promise.allSettled([
+        getTodayTasks(),
+        getUpcomingTasks(),
+        getMissedTasks(),
+        getNotifications(),
+        getUserProfile(),
+      ]);
+
+      const newErrors = {};
+
+      if (tasksResult.status === 'fulfilled') {
+        setTodayTasks(tasksResult.value || []);
+      } else {
+        newErrors.todayTasks = 'Failed to load today\'s tasks';
+        setTodayTasks([]);
+      }
+
+      if (upcResult.status === 'fulfilled') {
+        setUpcoming(upcResult.value || []);
+      } else {
+        newErrors.upcoming = 'Failed to load upcoming tasks';
+        setUpcoming([]);
+      }
+
+      if (missedResult.status === 'fulfilled') {
+        setMissed(missedResult.value || []);
+      } else {
+        newErrors.missed = 'Failed to load missed tasks';
+        setMissed([]);
+      }
+
+      if (notifsResult.status === 'fulfilled') {
+        setNotifications((notifsResult.value || []).slice(0, 3));
+      } else {
+        newErrors.notifications = 'Failed to load notifications';
+        setNotifications([]);
+      }
+
+      if (profResult.status === 'fulfilled') {
+        const profileData = profResult.value;
+        if (profileData?.error) {
+          newErrors.profile = profileData.errorMessage || 'Failed to load profile';
+        }
+        setProfile(profileData);
+      } else {
+        newErrors.profile = 'Failed to load profile';
+        setProfile({ name: "User", email: "", _id: null, error: true });
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+      }
+    } catch (error) {
+      setErrors({ general: 'An unexpected error occurred while loading data' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   if (loading) return <LoaderOverlay />;
 
   return (
     <>
+      {/* Error Notification */}
+      <ErrorNotification 
+        errors={errors} 
+        onDismiss={() => setErrors({})} 
+      />
+
       {/* CSS Animations */}
       <style>{`
         @keyframes fadeInUp {
@@ -621,10 +861,40 @@ export default function Dashboard() {
                 fontSize: 20,
                 fontWeight: 600,
                 letterSpacing: "-0.3px",
-                textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)"
+                textShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+                marginBottom: Object.keys(errors).length > 0 ? 16 : 0
               }}>
                 Achieve something extraordinary today ✨
               </div>
+              
+              {/* Retry button when there are errors */}
+              {Object.keys(errors).length > 0 && (
+                <button
+                  onClick={retryFetch}
+                  disabled={loading}
+                  style={{
+                    background: "linear-gradient(135deg, #FF9500 0%, #FF6B6B 100%)",
+                    border: "none",
+                    borderRadius: 12,
+                    color: "white",
+                    padding: "8px 16px",
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: loading ? "not-allowed" : "pointer",
+                    opacity: loading ? 0.6 : 1,
+                    transition: "all 0.3s ease",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 8,
+                    boxShadow: "0 4px 12px rgba(255, 149, 0, 0.3)"
+                  }}
+                  onMouseEnter={(e) => !loading && (e.target.style.transform = "translateY(-1px)")}
+                  onMouseLeave={(e) => !loading && (e.target.style.transform = "translateY(0)")}
+                >
+                  <RefreshIcon color="white" size={16} />
+                  {loading ? "Retrying..." : "Retry Loading"}
+                </button>
+              )}
             </div>
           </div>
 
@@ -708,7 +978,12 @@ export default function Dashboard() {
                 </span>
                 Today's Tasks
               </div>
-              <TaskList tasks={todayTasks} emptyText="No tasks for today." sectionColor="#007AFF" />
+              <TaskList 
+                tasks={todayTasks} 
+                emptyText="No tasks for today." 
+                sectionColor="#007AFF"
+                errorMessage={errors.todayTasks}
+              />
             </section>
 
             {/* Next Task */}
@@ -741,7 +1016,12 @@ export default function Dashboard() {
                 </span>
                 Next Task
               </div>
-              <TaskList tasks={upcoming.slice(0, 1)} emptyText="No upcoming task." sectionColor="#34C759" />
+              <TaskList 
+                tasks={upcoming.slice(0, 1)} 
+                emptyText="No upcoming task." 
+                sectionColor="#34C759"
+                errorMessage={errors.upcoming}
+              />
             </section>
 
             {/* Incomplete Tasks */}
@@ -774,7 +1054,12 @@ export default function Dashboard() {
                 </span>
                 Incomplete Tasks
               </div>
-              <TaskList tasks={incomplete} emptyText="All done for today!" sectionColor="#FF9500" />
+              <TaskList 
+                tasks={incomplete} 
+                emptyText="All done for today!" 
+                sectionColor="#FF9500"
+                errorMessage={errors.todayTasks} // Use same error as today's tasks since incomplete is derived from it
+              />
             </section>
 
             {/* Missed Tasks */}
@@ -807,7 +1092,12 @@ export default function Dashboard() {
                 </span>
                 Missed Tasks
               </div>
-              <TaskList tasks={missed} emptyText="No missed tasks!" sectionColor="#FF3B30" />
+              <TaskList 
+                tasks={missed} 
+                emptyText="No missed tasks!" 
+                sectionColor="#FF3B30"
+                errorMessage={errors.missed}
+              />
             </section>
           </div>
 
@@ -841,7 +1131,27 @@ export default function Dashboard() {
               </span>
               Notifications
             </div>
-            {notifications.length === 0 ? (
+            {errors.notifications ? (
+              <div style={{ 
+                color: "#FF3B30", 
+                margin: 0, 
+                fontWeight: 500,
+                textAlign: "center",
+                padding: "24px",
+                fontSize: 16,
+                fontStyle: "italic",
+                background: "rgba(255, 59, 48, 0.1)",
+                borderRadius: 12,
+                border: "1px solid rgba(255, 59, 48, 0.2)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8
+              }}>
+                <AlertIcon color="#FF3B30" size={20} />
+                {errors.notifications}
+              </div>
+            ) : notifications.length === 0 ? (
               <p style={{ 
                 color: "#8e8e93", 
                 margin: 0, 
