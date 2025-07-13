@@ -234,8 +234,30 @@ export default function Profile() {
       setError(null);
       try {
         const userProfile = await getUserProfile();
-        const profileData = userProfile.data || userProfile;
-        console.log("getUserProfile response:", profileData); // Debug log
+        let profileData = userProfile.data || userProfile;
+        console.log("Raw getUserProfile response:", profileData); // Debug log
+        
+        // Data validation and correction
+        // Check if name and email fields might be swapped in the backend response
+        if (profileData.name && profileData.email) {
+          // If name contains @ symbol, it's probably the email
+          if (profileData.name.includes('@') && !profileData.email.includes('@')) {
+            console.warn("Detected swapped name/email fields, correcting...");
+            const temp = profileData.name;
+            profileData.name = profileData.email;
+            profileData.email = temp;
+          }
+        }
+        
+        // Ensure we have proper fallbacks
+        profileData = {
+          name: profileData.name || "User",
+          email: profileData.email || "No email",
+          _id: profileData._id || null,
+          ...profileData
+        };
+        
+        console.log("Corrected profile data:", profileData); // Debug log
         setProfile(profileData);
 
         setTodayTasks(await getTodayTasks());
@@ -278,8 +300,26 @@ export default function Profile() {
   const completionRate = Math.round((completed / total) * 100);
 
   // Use user.name from AuthContext if available, else fall back to profile.name
-  const displayName = user?.name || profile.name || "Unknown User";
+  // Ensure we're displaying the correct data
+  const profileName = profile?.name || user?.name;
+  const profileEmail = profile?.email || user?.email;
+  
+  // Additional validation - make sure name doesn't contain @ symbol
+  const displayName = (profileName && !profileName.includes('@')) 
+    ? profileName 
+    : (profileEmail && profileEmail.includes('@')) 
+      ? "User" 
+      : profileName || "Unknown User";
+      
+  const displayEmail = (profileEmail && profileEmail.includes('@')) 
+    ? profileEmail 
+    : (profileName && profileName.includes('@')) 
+      ? profileName 
+      : profileEmail || "No email";
+      
   const displayInitials = getInitials(displayName);
+  
+  console.log("Display values:", { displayName, displayEmail, profileName, profileEmail }); // Debug log
 
   return (
     <div style={{
@@ -442,9 +482,14 @@ export default function Profile() {
             color: "#86868B", 
             fontWeight: "500", 
             fontSize: "17px", 
-            marginBottom: "32px"
+            marginBottom: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "8px"
           }}>
-            {profile.email || user?.email || "No email"}
+            <span style={{ fontSize: "14px", opacity: 0.7 }}>📧</span>
+            {displayEmail}
           </div>
 
           {/* Status Badge */}
