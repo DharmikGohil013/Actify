@@ -106,7 +106,6 @@ function Toggle({ checked, onChange, name, label, color = "#007AFF", accentColor
 export default function Settings() {
   const [settings, setSettings] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [buttonPressed, setButtonPressed] = useState(false);
 
   useEffect(() => {

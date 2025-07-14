@@ -520,7 +520,6 @@ export default function Dashboard() {
   const [missed, setMissed] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [profile, setProfile] = useState(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {

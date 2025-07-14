@@ -17,7 +17,7 @@ export default function FriendsPage() {
       fetchResults();
     }, 300); // debounce
     return () => clearTimeout(timeout);
-  }, [query]);
+  }, [query, fetchResults]);
 
   async function fetchResults() {
   setLoading(true);
