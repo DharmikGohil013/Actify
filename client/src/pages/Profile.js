@@ -233,6 +233,10 @@ export default function Profile() {
       setLoading(true);
       setError(null);
       try {
+        // Sequential loading to prevent rate limiting
+        console.log("🔄 Starting profile data fetch...");
+        
+        // 1. Load user profile first
         const userProfile = await getUserProfile();
         let profileData = userProfile.data || userProfile;
         console.log("Raw getUserProfile response:", profileData); // Debug log
@@ -260,21 +264,41 @@ export default function Profile() {
         console.log("Corrected profile data:", profileData); // Debug log
         setProfile(profileData);
 
-        setTodayTasks(await getTodayTasks());
-        setUpcomingTasks(await getUpcomingTasks());
+        // 2. Load tasks with small delays to prevent rate limiting
+        console.log("📅 Loading today's tasks...");
+        const todayTasksData = await getTodayTasks();
+        setTodayTasks(todayTasksData);
         
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        console.log("⏰ Loading upcoming tasks...");
+        const upcomingTasksData = await getUpcomingTasks();
+        setUpcomingTasks(upcomingTasksData);
+        
+        // Small delay between requests
+        await new Promise(resolve => setTimeout(resolve, 200));
+        
+        // 3. Load friends last
+        console.log("👥 Loading friends...");
         const friends = await getFriends();
         const validFriends = Array.isArray(friends) ? friends.filter(f => f._id && f.name) : [];
         console.log("Fetched friends:", validFriends); // Debug log
         setFollowers(validFriends);
+        
+        console.log("✅ Profile data loading complete!");
       } catch (error) {
-        console.error("Error fetching profile data:", error);
+        console.error("❌ Error fetching profile data:", error);
         setError(error.message || "Failed to load profile data");
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    
+    // Add a small delay before starting to prevent immediate repeated calls
+    const timeoutId = setTimeout(fetchData, 100);
+    
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const handleLogout = () => {

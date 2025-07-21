@@ -1,6 +1,7 @@
 const API = "http://localhost:5000/api"; // Include `/api` if your server uses it!
 
 // Change to your backend URL if needed
+import { throttledApiCall } from './requestThrottler';
 
 // Network connectivity check
 export async function checkServerHealth() {
@@ -58,18 +59,10 @@ export async function getTodayTasks() {
   try {
     const today = new Date();
     const dateString = today.toISOString().split("T")[0];
-    const res = await fetch(`${API}/tasks?date=${dateString}`, {
+    const data = await throttledApiCall(`${API}/tasks?date=${dateString}`, {
       headers: authHeaders(),
     });
     
-    const contentType = res.headers.get("content-type");
-    if (!res.ok || !contentType?.includes("application/json")) {
-      const text = await res.text();
-      console.error("Invalid response from getTodayTasks:", res.status, text);
-      return []; // Return empty array as fallback
-    }
-    
-    const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Error in getTodayTasks:", error);
@@ -93,18 +86,10 @@ export async function getTasksForWeek(weekStartDate) {
 
 export async function getUpcomingTasks() {
   try {
-    const res = await fetch(`${API}/tasks?upcoming=1`, {
+    const data = await throttledApiCall(`${API}/tasks?upcoming=1`, {
       headers: authHeaders(),
     });
     
-    const contentType = res.headers.get("content-type");
-    if (!res.ok || !contentType?.includes("application/json")) {
-      const text = await res.text();
-      console.error("Invalid response from getUpcomingTasks:", res.status, text);
-      return []; // Return empty array as fallback
-    }
-    
-    const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Error in getUpcomingTasks:", error);
@@ -114,18 +99,10 @@ export async function getUpcomingTasks() {
 
 export async function getMissedTasks() {
   try {
-    const res = await fetch(`${API}/tasks?missed=1`, {
+    const data = await throttledApiCall(`${API}/tasks?missed=1`, {
       headers: authHeaders(),
     });
     
-    const contentType = res.headers.get("content-type");
-    if (!res.ok || !contentType?.includes("application/json")) {
-      const text = await res.text();
-      console.error("Invalid response from getMissedTasks:", res.status, text);
-      return []; // Return empty array as fallback
-    }
-    
-    const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Error in getMissedTasks:", error);
@@ -169,18 +146,10 @@ export async function toggleTaskStatus(id) {
 
 export async function getNotifications() {
   try {
-    const res = await fetch(`${API}/notifications`, {
+    const data = await throttledApiCall(`${API}/notifications`, {
       headers: authHeaders(),
     });
     
-    const contentType = res.headers.get("content-type");
-    if (!res.ok || !contentType?.includes("application/json")) {
-      const text = await res.text();
-      console.error("Invalid response from getNotifications:", res.status, text);
-      return []; // Return empty array as fallback
-    }
-    
-    const data = await res.json();
     return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error("Error in getNotifications:", error);
@@ -228,25 +197,10 @@ export async function updateSettings(settings) {
 
 export async function getUserProfile() {
   try {
-    const res = await fetch(`${API}/users/me`, {
+    const data = await throttledApiCall(`${API}/users/me`, {
       headers: authHeaders(),
     });
     
-    const contentType = res.headers.get("content-type");
-    if (!res.ok || !contentType?.includes("application/json")) {
-      const text = await res.text();
-      console.error("Invalid response from getUserProfile:", res.status, text);
-      // Return a default profile object as fallback
-      return { 
-        name: "User", 
-        email: "", 
-        _id: null,
-        error: true,
-        errorMessage: `Server error: ${res.status}` 
-      };
-    }
-    
-    const data = await res.json();
     console.log("getUserProfile response:", data); // Debug log
     
     // Ensure the profile has required fields
@@ -425,17 +379,17 @@ export async function followUser(userId) {
 }
 
 export async function getFriends() {
-  const response = await fetch(`${API}/users/friends`, {
-    method: 'GET',
-    headers: authHeaders(),
-  });
-  const contentType = response.headers.get("content-type");
-  if (!response.ok || !contentType?.includes("application/json")) {
-    const text = await response.text();
-    console.error("Invalid response from getFriends:", response.status, text);
+  try {
+    const data = await throttledApiCall(`${API}/users/friends`, {
+      method: 'GET',
+      headers: authHeaders(),
+    });
+    
+    return data;
+  } catch (error) {
+    console.error("Error in getFriends:", error);
     throw new Error("Invalid response from server");
   }
-  return response.json();
 }
 
 export async function sendOTP(email) {

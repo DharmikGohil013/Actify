@@ -2,6 +2,7 @@ import React, { useContext } from "react";
 import { BrowserRouter, useLocation } from "react-router-dom";
 import Sidebar from "./components/Sidebar";
 import { AuthContext } from "./context/AuthContext";
+import ErrorBoundary from "./components/ErrorBoundary";
 import AppRoutes from "./routes";
 
 // Layout with sidebar visibility logic
@@ -22,11 +23,13 @@ function Layout({ children }) {
 // App component
 export default function App() {
   return (
-    <BrowserRouter>
-      <LayoutWrapper>
-        <AppRoutes />
-      </LayoutWrapper>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <LayoutWrapper>
+          <AppRoutes />
+        </LayoutWrapper>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

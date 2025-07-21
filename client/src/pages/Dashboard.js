@@ -528,73 +528,40 @@ export default function Dashboard() {
       setErrors({}); // Reset errors
       
       try {
-        // Use Promise.allSettled instead of Promise.all to handle individual failures
-        const [tasksResult, upcResult, missedResult, notifsResult, profResult] = await Promise.allSettled([
-          getTodayTasks(),
-          getUpcomingTasks(),
-          getMissedTasks(),
-          getNotifications(),
-          getUserProfile(),
-        ]);
-
-        // Handle each result individually
-        const newErrors = {};
-
-        if (tasksResult.status === 'fulfilled') {
-          setTodayTasks(tasksResult.value || []);
-        } else {
-          console.error('Failed to fetch today tasks:', tasksResult.reason);
-          newErrors.todayTasks = tasksResult.reason?.message || 'Failed to load today\'s tasks';
-          setTodayTasks([]);
-        }
-
-        if (upcResult.status === 'fulfilled') {
-          setUpcoming(upcResult.value || []);
-        } else {
-          console.error('Failed to fetch upcoming tasks:', upcResult.reason);
-          newErrors.upcoming = upcResult.reason?.message || 'Failed to load upcoming tasks';
-          setUpcoming([]);
-        }
-
-        if (missedResult.status === 'fulfilled') {
-          setMissed(missedResult.value || []);
-        } else {
-          console.error('Failed to fetch missed tasks:', missedResult.reason);
-          newErrors.missed = missedResult.reason?.message || 'Failed to load missed tasks';
-          setMissed([]);
-        }
-
-        if (notifsResult.status === 'fulfilled') {
-          setNotifications((notifsResult.value || []).slice(0, 3));
-        } else {
-          console.error('Failed to fetch notifications:', notifsResult.reason);
-          newErrors.notifications = notifsResult.reason?.message || 'Failed to load notifications';
-          setNotifications([]);
-        }
-
-        if (profResult.status === 'fulfilled') {
-          const profileData = profResult.value;
-          if (profileData?.error) {
-            console.error('Profile data contains error:', profileData.errorMessage);
-            newErrors.profile = profileData.errorMessage || 'Failed to load profile';
-          }
-          setProfile(profileData);
-        } else {
-          console.error('Failed to fetch profile:', profResult.reason);
-          newErrors.profile = profResult.reason?.message || 'Failed to load profile';
-          setProfile({ name: "User", email: "", _id: null, error: true });
-        }
-
-        // Set errors if any occurred
-        if (Object.keys(newErrors).length > 0) {
-          setErrors(newErrors);
-          console.warn('Some API calls failed:', newErrors);
-        }
-
-      } catch (error) {
-        console.error('Unexpected error in fetchData:', error);
-        setErrors({ general: 'An unexpected error occurred while loading data' });
+        console.log("🔄 Starting dashboard data fetch...");
         
+        // Sequential loading to prevent rate limiting
+        console.log("📅 Loading today's tasks...");
+        const todayTasksData = await getTodayTasks();
+        setTodayTasks(Array.isArray(todayTasksData) ? todayTasksData : []);
+        
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        console.log("⏰ Loading upcoming tasks...");
+        const upcomingTasksData = await getUpcomingTasks();
+        setUpcoming(Array.isArray(upcomingTasksData) ? upcomingTasksData : []);
+        
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        console.log("❌ Loading missed tasks...");
+        const missedTasksData = await getMissedTasks();
+        setMissed(Array.isArray(missedTasksData) ? missedTasksData : []);
+        
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        console.log("🔔 Loading notifications...");
+        const notificationsData = await getNotifications();
+        setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
+        
+        await new Promise(resolve => setTimeout(resolve, 150));
+        
+        console.log("👤 Loading user profile...");
+        const profileData = await getUserProfile();
+        setProfile(profileData || { name: "User", email: "", _id: null, error: true });
+        
+        console.log("✅ Dashboard data loading complete!");
+      } catch (error) {
+        console.error("❌ Dashboard fetch error:", error);
         // Set fallback data
         setTodayTasks([]);
         setUpcoming([]);
@@ -603,13 +570,12 @@ export default function Dashboard() {
         setProfile({ name: "User", email: "", _id: null, error: true });
       } finally {
         setLoading(false);
-        setTimeout(() => setIsLoaded(true), 100);
       }
     }
 
-    fetchData();
-  }, []);
-
+    // Add delay to prevent immediate repeated calls
+    const timeoutId = setTimeout(fetchData, 100);
+    return () => clearTimeout(timeoutId);
   const incomplete = todayTasks.filter((t) => t.status === "Incomplete");
   const greeting = getGreeting();
 

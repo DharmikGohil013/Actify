@@ -112,9 +112,24 @@ export default function Settings() {
     async function fetchSettings() {
       const res = await getSettings();
       setSettings(res);
-      setTimeout(() => setIsLoaded(true), 100);
     }
     fetchSettings();
+  }, []);
+
+  // Handle ResizeObserver errors specifically for this component
+  useEffect(() => {
+    const handleResizeObserverError = (e) => {
+      if (e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+        e.stopImmediatePropagation();
+        return false;
+      }
+    };
+
+    window.addEventListener('error', handleResizeObserverError);
+    
+    return () => {
+      window.removeEventListener('error', handleResizeObserverError);
+    };
   }, []);
 
   function handleChange(e) {
