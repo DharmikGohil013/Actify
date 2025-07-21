@@ -1,8 +1,8 @@
 import { throttledApiCall } from './requestThrottler';
 
-const API = "http://localhost:5000/api"; // Include `/api` if your server uses it!
+const API = "https://actify.onrender.com/api"; // Production backend server
 
-// Change to your backend URL if needed
+// Backend server URL updated to production
 
 // Network connectivity check
 export async function checkServerHealth() {
@@ -340,7 +340,7 @@ export async function getProjectTasks(projectId) {
 
 export async function searchUsers(query) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`https://actify.onrender.com/api/users/search?q=${encodeURIComponent(query)}`, {
+  const res = await fetch(`${API}/users/search?q=${encodeURIComponent(query)}`, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
