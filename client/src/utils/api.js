@@ -1,7 +1,8 @@
+import { throttledApiCall } from './requestThrottler';
+
 const API = "http://localhost:5000/api"; // Include `/api` if your server uses it!
 
 // Change to your backend URL if needed
-import { throttledApiCall } from './requestThrottler';
 
 // Network connectivity check
 export async function checkServerHealth() {
