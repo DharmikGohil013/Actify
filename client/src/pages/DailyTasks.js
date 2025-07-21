@@ -43,7 +43,7 @@ function TaskForm({ onSave, onCancel, initialData }) {
 
   useEffect(() => {
     setForm(initialData || defaultTask);
-  }, [initialData, defaultTask]);
+  }, [initialData]);
 
   function handleChange(e) {
     const { name, value } = e.target;

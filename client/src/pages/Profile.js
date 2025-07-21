@@ -435,18 +435,14 @@ export default function Profile() {
         </div>
       </div>
 
-      <div style={{
+      <div className="profile-layout" style={{
         display: "grid",
         gridTemplateColumns: "400px 1fr",
         gap: "40px",
         maxWidth: "1200px",
         margin: "0 auto",
         position: "relative",
-        zIndex: 1,
-        '@media (max-width: 768px)': {
-          gridTemplateColumns: "1fr",
-          gap: "24px"
-        }
+        zIndex: 1
       }}>
         {/* Profile Card */}
         <div style={{
