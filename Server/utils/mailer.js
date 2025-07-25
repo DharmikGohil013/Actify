@@ -33,7 +33,7 @@ exports.sendOtpEmail = async (email, otp) => {
   await transporter.sendMail({
     from: '"Your App" <your@email.com>',
     to: email,
-    subject: "Your OTP Code – Action Required",
+    subject: "Your OTP Code – Action Required - Can't Share It With Anyone",
     html: htmlContent,
   });
 };
