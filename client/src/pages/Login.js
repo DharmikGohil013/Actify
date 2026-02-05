@@ -326,23 +326,3 @@ export default function Login() {
     </>
   );
 }
-              <Link to="/register">Register here</Link>
-            </div>
-
-            <div className="forgot-password-link">
-              <Link to="/forgot-password">Forgot password?</Link>
-            </div>
-          </div>
-        </div>
-
-        <footer className="footer">
-          <div>Actify © {new Date().getFullYear()}</div>
-          <div>
-            Empowering your daily success —{" "}
-            <a href="https://dharmikgohil.fun/">Actify Productivity Platform</a>
-          </div>
-        </footer>
-      </div>
-    </>
-  );
-}
