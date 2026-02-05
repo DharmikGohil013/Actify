@@ -109,9 +109,9 @@ body {
 
 .login-panel-content {
   width: 100%;
-  max-width: 380px;
+  max-width: 340px;
   background: white;
-  padding: 1.5rem 1.75rem;
+  padding: 1.25rem 1.5rem;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
@@ -119,7 +119,7 @@ body {
 /* Welcome Header */
 .welcome-header {
   text-align: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 
 .plane-icon {
@@ -135,19 +135,19 @@ body {
 }
 
 .plane-icon svg {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
 }
 
 .welcome-title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: #00a8e8;
   margin-bottom: 0.2rem;
 }
 
 .welcome-subtitle {
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: #666;
   font-weight: 400;
 }
@@ -157,27 +157,27 @@ body {
   background: #fee;
   border-left: 4px solid #e53e3e;
   color: #c53030;
-  padding: 0.625rem 0.875rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 6px;
-  margin-bottom: 0.875rem;
-  font-size: 0.8125rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
 }
 
 /* Form Styles */
 .login-form {
-  margin-bottom: 0.875rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-group {
-  margin-bottom: 0.875rem;
+  margin-bottom: 0.75rem;
 }
 
 .form-group label {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.6875rem;
   font-weight: 600;
   color: #00a8e8;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
 }
 
 .input-with-icon {
@@ -200,10 +200,10 @@ body {
 
 .input-with-icon input {
   width: 100%;
-  padding: 0.65rem 0.875rem 0.65rem 2.5rem;
+  padding: 0.6rem 0.75rem 0.6rem 2.25rem;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   color: #2d3748;
   transition: all 0.3s ease;
   outline: none;
@@ -233,17 +233,12 @@ body {
 /* Login Button */
 .login-btn {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.65rem;
   background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
   color: white;
   border: none;
   border-radius: 8px;
-  font-size: 0.8em;
-  background: linear-gradient(135deg, #00a8e8 0%, #0077b6 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9375rem;
+  font-size: 0.8125rem;
   font-weight: 700;
   letter-spacing: 0.5px;
   cursor: pointer;
@@ -269,7 +264,7 @@ body {
 .divider {
   position: relative;
   text-align: center;
-  margin: 1rem 0;
+  margin: 0.875rem 0;
 }
 
 .divider::before,
@@ -301,14 +296,14 @@ body {
 /* Social Login Buttons */
 .social-login-buttons {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.625rem;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.875rem;
 }
 
 .social-btn {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   border: none;
   border-radius: 10px;
   background: #f7fafc;
@@ -326,8 +321,8 @@ body {
 }
 
 .social-btn svg {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
 }
 
 .social-btn.google {
@@ -345,7 +340,7 @@ body {
 /* Register Prompt */
 .register-prompt {
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #4a5568;
 }
 
@@ -371,31 +366,52 @@ body {
   }
 
   .login-hero {
-    min-height: 300px;
-    max-height: 300px;
+    min-height: 250px;
+    max-height: 250px;
   }
 
   .hero-brand {
-    font-size: 2.5rem;
+    font-size: 2rem;
   }
 
   .hero-tagline {
-    font-size: 1rem;
+    font-size: 0.875rem;
   }
 
   .login-panel {
     flex: 1;
   }
+
+  .login-panel-content {
+    max-width: 100%;
+    padding: 1.25rem;
+  }
 }
 
 @media (max-width: 768px) {
   .login-hero {
-    min-height: 250px;
-    max-height: 250px;
+    min-height: 200px;
+    max-height: 200px;
   }
 
   .hero-content {
     padding: 1.5rem;
+  }
+
+  .hero-brand {
+    font-size: 1.75rem;
+  }
+
+  .hero-tagline {
+    font-size: 0.75rem;
+  }
+
+  .login-panel-content {
+    padding: 1rem;
+  }
+
+  .welcome-title {
+    font-size: 1.25rem;
   }
 
   .hero-brand {
