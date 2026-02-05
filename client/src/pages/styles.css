@@ -390,20 +390,25 @@ body {
 
 @media (max-width: 768px) {
   .login-hero {
-    min-height: 200px;
-    max-height: 200px;
+    min-height: 180px;
+    max-height: 180px;
   }
 
   .hero-content {
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .hero-brand {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
   }
 
   .hero-tagline {
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
+  }
+
+  .login-panel {
+    padding: 1.5rem;
   }
 
   .login-panel-content {
@@ -414,35 +419,39 @@ body {
     font-size: 1.25rem;
   }
 
-  .hero-brand {
-    font-size: 2rem;
+  .plane-icon svg {
+    width: 24px;
+    height: 24px;
   }
 
-  .hero-tagline {
-    font-size: 0.9375rem;
+  .social-btn {
+    width: 38px;
+    height: 38px;
   }
 
-  .login-panel-content {
-    padding: 2rem 1.5rem;
-  }
-
-  .welcome-title {
-    font-size: 2rem;
+  .social-btn svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
 @media (max-width: 480px) {
   .login-hero {
-    min-height: 200px;
-    max-height: 200px;
+    min-height: 150px;
+    max-height: 150px;
+  }
+
+  .hero-overlay {
+    padding: 1.5rem;
   }
 
   .hero-brand {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
   }
 
   .hero-tagline {
-    font-size: 0.875rem;
+    font-size: 0.625rem;
   }
 
   .login-panel {
@@ -450,16 +459,38 @@ body {
   }
 
   .login-panel-content {
-    padding: 1.5rem 1rem;
+    padding: 0.875rem;
   }
 
   .welcome-title {
-    font-size: 1.75rem;
+    font-size: 1.125rem;
+  }
+
+  .welcome-subtitle {
+    font-size: 0.6875rem;
+  }
+
+  .form-group {
+    margin-bottom: 0.625rem;
+  }
+
+  .login-btn {
+    padding: 0.6rem;
+    font-size: 0.75rem;
+  }
+
+  .social-login-buttons {
+    gap: 0.5rem;
   }
 
   .social-btn {
-    width: 50px;
-    height: 50px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .social-btn svg {
+    width: 16px;
+    height: 16px;
   }
 }
 
