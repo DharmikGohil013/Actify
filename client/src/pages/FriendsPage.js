@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { searchUsers, followUser } from "../utils/api";
-import LoaderOverlay from "../components/Loader"; // adjust path if needed
-
+import LoaderOverlay from "../components/Loader";
 
 export default function FriendsPage() {
   const [query, setQuery] = useState("");
@@ -9,39 +8,25 @@ export default function FriendsPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setResults({});
-      return;
-    }
-    const timeout = setTimeout(() => {
-      fetchResults();
-    }, 300); // debounce
+    if (!query.trim()) { setResults({}); return; }
+    const timeout = setTimeout(() => fetchResults(), 300);
     return () => clearTimeout(timeout);
   }, [query]);
 
   async function fetchResults() {
-  setLoading(true);
-  const res = await searchUsers(query);
-  const raw = Array.isArray(res) ? res : res.users || [];
-
-  const grouped = {};
-
-  raw.forEach(user => {
-    const initial = user.name?.[0]?.toUpperCase() || "#";
-    if (!grouped[initial]) grouped[initial] = [];
-    grouped[initial].push(user);
-  });
-
-  const sorted = Object.keys(grouped)
-    .sort()
-    .reduce((acc, key) => {
-      acc[key] = grouped[key];
-      return acc;
-    }, {});
-
-  setResults(sorted);
-  setLoading(false);
-}
+    setLoading(true);
+    const res = await searchUsers(query);
+    const raw = Array.isArray(res) ? res : res.users || [];
+    const grouped = {};
+    raw.forEach(user => {
+      const initial = user.name?.[0]?.toUpperCase() || "#";
+      if (!grouped[initial]) grouped[initial] = [];
+      grouped[initial].push(user);
+    });
+    const sorted = Object.keys(grouped).sort().reduce((acc, key) => { acc[key] = grouped[key]; return acc; }, {});
+    setResults(sorted);
+    setLoading(false);
+  }
 
   async function handleFollow(userId) {
     await followUser(userId);
@@ -57,8 +42,12 @@ export default function FriendsPage() {
   }
 
   return (
-    <div style={{ padding: 32, maxWidth: 800, margin: "0 auto" }}>
-      <h2 style={{ fontWeight: 800, color: "#1976d2" }}>Find & Follow Friends</h2>
+    <div className="page-container" style={{ animation: "pageEnter .4s ease-out" }}>
+      <div className="page-header">
+        <h1 style={{ margin: 0, fontSize: "clamp(1.5rem, 3vw, 2rem)" }}>
+           Find & Follow Friends
+        </h1>
+      </div>
 
       <input
         value={query}
@@ -67,91 +56,85 @@ export default function FriendsPage() {
         style={{
           width: "100%",
           padding: "12px 16px",
-          fontSize: 16,
-          borderRadius: 10,
-          border: "1.5px solid #ccc",
-          margin: "16px 0 26px"
+          fontSize: 15,
+          borderRadius: "var(--radius-lg)",
+          border: "1px solid var(--border-color)",
+          background: "var(--bg-secondary)",
+          marginBottom: 24,
+          transition: "all var(--transition-base)",
+          outline: "none",
         }}
+        onFocus={e => e.target.style.borderColor = "var(--primary)"}
+        onBlur={e => e.target.style.borderColor = "var(--border-color)"}
       />
 
       {loading && <LoaderOverlay />}
 
       {!loading && Object.keys(results).length === 0 && query && (
-        <div style={{ color: "#999" }}>No users found.</div>
+        <div className="empty-state">No users found for "{query}"</div>
       )}
 
-      {!loading &&
-        Object.keys(results).map(letter => (
-          <div key={letter} style={{ marginBottom: 24 }}>
-            <h4
-              style={{
-                margin: "14px 0 10px",
-                color: "#555",
-                fontWeight: 800,
-                borderBottom: "2px solid #d9e5ff",
-                paddingBottom: 4
-              }}
-            >
-              {letter}
-            </h4>
-            <ul style={{ listStyle: "none", padding: 0 }}>
-              {results[letter].map(user => (
-                <li
-  key={user._id}
-  style={{
-    background: "linear-gradient(90deg, #f2f6ff, #eef7ff)",
-    border: "1px solid #d6e4ff",
-    borderRadius: 14,
-    padding: "18px 20px",
-    marginBottom: 12,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    boxShadow: "0 4px 12px #1976d219",
-    transition: "transform 0.2s ease",
-  }}
->
-
+      {!loading && Object.keys(results).map(letter => (
+        <div key={letter} style={{ marginBottom: 20 }}>
+          <h4 style={{
+            margin: "0 0 10px",
+            color: "var(--text-muted)",
+            fontWeight: 700,
+            fontSize: 13,
+            textTransform: "uppercase",
+            letterSpacing: 1.5,
+            borderBottom: "2px solid var(--border-color)",
+            paddingBottom: 6,
+          }}>
+            {letter}
+          </h4>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {results[letter].map(user => (
+              <div
+                key={user._id}
+                className="card"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "14px 20px",
+                  gap: 12,
+                  flexWrap: "wrap",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{
+                    width: 40, height: 40, borderRadius: "50%",
+                    background: "linear-gradient(135deg, var(--primary), var(--accent-purple))",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    color: "#fff", fontWeight: 700, fontSize: 16, flexShrink: 0,
+                  }}>
+                    {user.name?.[0]?.toUpperCase() || "?"}
+                  </div>
                   <div>
-                    <div style={{ fontWeight: 700, fontSize: 16 }}>{user.name}</div>
-                    <div style={{ fontSize: 13, color: "#555" }}>
-                      Completed Tasks: {user.completedTasks || 0}
+                    <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-primary)" }}>{user.name}</div>
+                    <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                      {user.completedTasks || 0} tasks completed
                     </div>
                     {user.isBlocked && (
-                      <div style={{ fontSize: 12, color: "red", fontWeight: 600 }}>
-                        🚫 Blocked
-                      </div>
+                      <span className="badge badge-danger" style={{ marginTop: 4 }}>Blocked</span>
                     )}
                   </div>
+                </div>
 
-                  {!user.isFriend && !user.isBlocked && (
-                   <button
-  onClick={() => handleFollow(user._id)}
-  style={{
-    background: "linear-gradient(90deg,#1976d2,#3a8efd)",
-    color: "#fff",
-    fontWeight: 700,
-    border: "none",
-    borderRadius: 20,
-    padding: "8px 20px",
-    fontSize: 14,
-    boxShadow: "0 2px 6px #1976d230",
-    cursor: "pointer",
-    transition: "all 0.2s ease-in-out",
-  }}
->
-  + Follow
-</button>
-
-                  )}
-                  {user.isFriend && (
-                    <div style={{ color: "#43e97b", fontWeight: 700 }}>Following ✅</div>
-                  )}
-                </li>
-              ))}
-            </ul>
+                {!user.isFriend && !user.isBlocked && (
+                  <button className="btn-primary btn-sm btn-pill" onClick={() => handleFollow(user._id)}>
+                    + Follow
+                  </button>
+                )}
+                {user.isFriend && (
+                  <span className="badge badge-success">Following </span>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+      ))}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { AuthContext } from "./context/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AppRoutes from "./routes";
+import "./App.css";
 
 // Layout with sidebar visibility logic
 function Layout({ children }) {
@@ -13,9 +14,9 @@ function Layout({ children }) {
   const showSidebar = user && !noSidebarPaths.includes(location.pathname);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#f7f8fa" }}>
+    <div className="app-layout">
       {showSidebar && <Sidebar />}
-      <main style={{ flex: 1 }}>{children}</main>
+      <main className="app-main">{children}</main>
     </div>
   );
 }

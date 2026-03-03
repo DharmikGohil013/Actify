@@ -811,9 +811,9 @@
 .collapse-btn:focus,
 .logout-btn:focus,
 .mobile-sidebar-toggle:focus {
-  outline: 3px solid #61dafb;
+  outline: 3px solid #818cf8;
   outline-offset: 2px;
-  box-shadow: 0 0 0 6px rgba(97, 218, 251, 0.2);
+  box-shadow: 0 0 0 6px rgba(129, 140, 248, 0.2);
 }
 
 /* High contrast mode support */

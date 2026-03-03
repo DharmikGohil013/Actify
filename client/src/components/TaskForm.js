@@ -27,44 +27,33 @@ export default function TaskForm({ onSave, onCancel, initialData }) {
     setForm(defaultTask);
   }
 
+  const priorityColor = form.priority === "High" ? "var(--accent-red)" : form.priority === "Medium" ? "var(--accent-orange)" : "var(--accent-green)";
+
   return (
     <form
       onSubmit={handleSubmit}
       style={{
         marginBottom: 24,
-        background: "#f9f9f9",
-        padding: 20,
-        borderRadius: 12,
-        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+        background: "var(--bg-secondary)",
+        padding: "24px",
+        borderRadius: "var(--radius-xl)",
+        border: "1px solid var(--border-color)",
+        boxShadow: "var(--shadow-sm)",
       }}
     >
-      {/* Top row fields */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-        <input
-          name="name"
-          placeholder="Task Name"
-          value={form.name}
-          onChange={handleChange}
-          required
-          style={{
-            flex: 2,
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            minWidth: 180,
-          }}
-        />
-        <select
-          name="type"
-          value={form.type}
-          onChange={handleChange}
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            minWidth: 140,
-          }}
-        >
+      {/* Fields grid */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+        <div style={{ gridColumn: "span 2", minWidth: 0 }}>
+          <input
+            name="name"
+            placeholder="Task Name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            style={{ width: "100%", fontWeight: 600 }}
+          />
+        </div>
+        <select name="type" value={form.type} onChange={handleChange}>
           <option>Work</option>
           <option>Personal</option>
           <option>Learning</option>
@@ -76,12 +65,6 @@ export default function TaskForm({ onSave, onCancel, initialData }) {
           value={form.time}
           onChange={handleChange}
           required
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            minWidth: 120,
-          }}
         />
         <input
           name="duration"
@@ -90,27 +73,16 @@ export default function TaskForm({ onSave, onCancel, initialData }) {
           value={form.duration}
           onChange={handleChange}
           min={1}
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            width: 140,
-          }}
         />
         <select
           name="priority"
           value={form.priority}
           onChange={handleChange}
-          style={{
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            minWidth: 120,
-          }}
+          style={{ color: priorityColor, fontWeight: 700 }}
         >
-          <option>High</option>
-          <option>Medium</option>
-          <option>Low</option>
+          <option style={{ color: "var(--accent-red)" }}>High</option>
+          <option style={{ color: "var(--accent-orange)" }}>Medium</option>
+          <option style={{ color: "var(--accent-green)" }}>Low</option>
         </select>
       </div>
 
@@ -121,46 +93,21 @@ export default function TaskForm({ onSave, onCancel, initialData }) {
           placeholder="Notes (optional)"
           value={form.notes}
           onChange={handleChange}
-          rows={3}
-          style={{
-            width: "100%",
-            padding: 10,
-            borderRadius: 6,
-            border: "1px solid #ccc",
-            fontFamily: "inherit",
-          }}
+          rows={2}
+          style={{ width: "100%", minHeight: 60 }}
         />
       </div>
 
       {/* Actions */}
       <div style={{ marginTop: 16, display: "flex", gap: 12 }}>
-        <button
-          type="submit"
-          style={{
-            background: "#1976d2",
-            color: "#fff",
-            border: "none",
-            padding: "10px 20px",
-            borderRadius: 8,
-            fontWeight: 600,
-            cursor: "pointer",
-          }}
-        >
+        <button type="submit" className="btn-primary btn-pill">
           {initialData ? "Update Task" : "Add Task"}
         </button>
         {onCancel && (
           <button
             type="button"
             onClick={onCancel}
-            style={{
-              background: "#eee",
-              color: "#333",
-              border: "1px solid #ccc",
-              padding: "10px 20px",
-              borderRadius: 8,
-              fontWeight: 500,
-              cursor: "pointer",
-            }}
+            className="btn-outline btn-pill"
           >
             Cancel
           </button>

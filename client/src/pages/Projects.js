@@ -104,5 +104,14 @@
 import React from "react";
 
 export default function Projects() {
-  return <div>📁 All Projects (List of your teams and projects)</div>;
+  return (
+    <div className="page-container" style={{ animation: "pageEnter .5s ease" }}>
+      <div className="page-header"><h1>Projects</h1></div>
+      <div className="empty-state">
+        <span style={{ fontSize: 48 }}>📁</span>
+        <h3>Coming Soon</h3>
+        <p>Team projects and collaboration features are on the way.</p>
+      </div>
+    </div>
+  );
 }

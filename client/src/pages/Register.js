@@ -75,7 +75,7 @@ export default function Register() {
           </div>
 
           <svg width="300" height="200" viewBox="0 0 300 200">
-            <ellipse cx="150" cy="170" rx="110" ry="30" fill="#1976d2" fillOpacity="0.09" />
+            <ellipse cx="150" cy="170" rx="110" ry="30" fill="#4f46e5" fillOpacity="0.09" />
             <circle cx="150" cy="125" r="28" fill="#fff500" fillOpacity="0.7" />
             <g stroke="#fff500" strokeWidth="3" opacity="0.6">
               <line x1="150" y1="82" x2="150" y2="50" />
@@ -86,7 +86,7 @@ export default function Register() {
             </g>
             <path
               d="M150 170 Q153 150 170 140 Q200 120 150 125 Q100 130 130 140 Q147 150 150 170"
-              stroke="#1976d2"
+              stroke="#4f46e5"
               strokeWidth="2"
               fill="none"
               opacity="0.4"
@@ -98,7 +98,7 @@ export default function Register() {
               fontFamily="Arial"
               fontSize="22"
               fontWeight="bold"
-              fill="#1976d2"
+              fill="#4f46e5"
               opacity="0.92"
             >
               New Day, New Goals!
@@ -109,7 +109,7 @@ export default function Register() {
               textAnchor="middle"
               fontFamily="Arial"
               fontSize="14"
-              fill="#1976d2"
+              fill="#4f46e5"
               opacity="0.72"
             >
               Start now. Small steps = big change.
@@ -119,7 +119,7 @@ export default function Register() {
           <h2>Start Your Journey</h2>
           <p>
             Your best days begin with small steps. <br />
-            <span style={{ color: "#1976d2", fontWeight: 600 }}>
+            <span style={{ color: 'var(--primary)', fontWeight: 600 }}>
               Join Actify today and turn every task into a win!
             </span>
           </p>
@@ -133,7 +133,7 @@ export default function Register() {
             {step === 3 && "Complete your account information"}
           </p>
 
-          {error && <div style={{ color: "#e74c3c", marginBottom: 12, textAlign: "center" }}>{error}</div>}
+          {error && <div style={{ color: 'var(--accent-red)', marginBottom: 12, textAlign: 'center', fontSize: 14 }}>{error}</div>}
 
           <form onSubmit={handleSubmit} className="register-form">
             {step === 1 && (
@@ -156,8 +156,8 @@ export default function Register() {
                   maxLength="6"
                   required
                 />
-                <div style={{ fontSize: "14px", color: "#666", textAlign: "center", marginTop: "8px" }}>
-                  Didn't receive the code? <button type="button" style={{ background: "none", border: "none", color: "#1976d2", cursor: "pointer", textDecoration: "underline" }} onClick={() => setStep(1)}>Resend</button>
+                <div style={{ fontSize: 14, color: 'var(--text-muted)', textAlign: 'center', marginTop: 8 }}>
+                  Didn't receive the code? <button type="button" style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', textDecoration: 'underline', fontSize: 14 }} onClick={() => setStep(1)}>Resend</button>
                 </div>
               </>
             )}
@@ -169,7 +169,7 @@ export default function Register() {
                   placeholder="Email"
                   value={form.email}
                   readOnly
-                  style={{ backgroundColor: "#f8f9fa", cursor: "not-allowed" }}
+                  style={{ backgroundColor: 'var(--bg-tertiary)', cursor: 'not-allowed' }}
                 />
                 <input
                   type="text"
