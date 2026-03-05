@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { getSettings, updateSettings } from "../utils/api";
 import LoaderOverlay from "../components/Loader";

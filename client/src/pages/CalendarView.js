@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Calendar from "react-calendar";
 import { getTasksForDate, addTask } from "../utils/api";
 import toast from "react-hot-toast";

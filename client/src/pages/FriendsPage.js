@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { searchUsers, followUser } from "../utils/api";
 import LoaderOverlay from "../components/Loader";
 
@@ -9,24 +9,24 @@ export default function FriendsPage() {
 
   useEffect(() => {
     if (!query.trim()) { setResults({}); return; }
-    const timeout = setTimeout(() => fetchResults(), 300);
+    const timeout = setTimeout(() => {
+      (async () => {
+        setLoading(true);
+        const res = await searchUsers(query);
+        const raw = Array.isArray(res) ? res : res.users || [];
+        const grouped = {};
+        raw.forEach(user => {
+          const initial = user.name?.[0]?.toUpperCase() || "#";
+          if (!grouped[initial]) grouped[initial] = [];
+          grouped[initial].push(user);
+        });
+        const sorted = Object.keys(grouped).sort().reduce((acc, key) => { acc[key] = grouped[key]; return acc; }, {});
+        setResults(sorted);
+        setLoading(false);
+      })();
+    }, 300);
     return () => clearTimeout(timeout);
   }, [query]);
-
-  async function fetchResults() {
-    setLoading(true);
-    const res = await searchUsers(query);
-    const raw = Array.isArray(res) ? res : res.users || [];
-    const grouped = {};
-    raw.forEach(user => {
-      const initial = user.name?.[0]?.toUpperCase() || "#";
-      if (!grouped[initial]) grouped[initial] = [];
-      grouped[initial].push(user);
-    });
-    const sorted = Object.keys(grouped).sort().reduce((acc, key) => { acc[key] = grouped[key]; return acc; }, {});
-    setResults(sorted);
-    setLoading(false);
-  }
 
   async function handleFollow(userId) {
     await followUser(userId);
