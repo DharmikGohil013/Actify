@@ -181,6 +181,24 @@ export default function Sidebar() {
         </svg>
       )
     },
+    { 
+      to: "/analytics", 
+      label: "Analytics", 
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+        </svg>
+      )
+    },
+    { 
+      to: "/leaderboard", 
+      label: "Leaderboard", 
+      icon: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M7.5 21H2V9h5.5v12zm7.25-18h-5.5v18h5.5V3zM22 11h-5.5v10H22V11z"/>
+        </svg>
+      )
+    },
   ];
 
   const handleToggle = () => {

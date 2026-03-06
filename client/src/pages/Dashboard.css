@@ -99,6 +99,7 @@
 /* ── Responsive ── */
 @media (max-width: 1024px) {
   .dash-stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-insights-row { grid-template-columns: 1fr; }
 }
 @media (max-width: 768px) {
   .dash-page { padding: 20px 14px; }
@@ -108,9 +109,41 @@
   .dash-stat__value { font-size: 28px; }
   .dash-tasks-grid { grid-template-columns: 1fr; gap: 18px; }
   .dash-section { padding: 20px 16px; }
+  .dash-quick-links { grid-template-columns: 1fr; }
 }
 @media (max-width: 480px) {
   .dash-stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .dash-stat { padding: 18px 12px; }
   .dash-stat__value { font-size: 24px; }
 }
+
+/* ── Insights Row (Streak/Score/Avg) ── */
+.dash-insights-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px;
+  animation: fadeInUp .6s ease-out;
+}
+.dash-insight-card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--bg-secondary); border: 1px solid var(--border-color);
+  border-left: 4px solid; border-radius: var(--radius-xl);
+  padding: 20px 22px; transition: all .25s;
+}
+.dash-insight-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); }
+.dash-insight-icon { font-size: 32px; flex-shrink: 0; }
+.dash-insight-value { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+.dash-insight-sub { font-size: 12px; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
+
+/* ── Quick Links ── */
+.dash-quick-links {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;
+}
+.dash-quick-link {
+  display: flex; align-items: center; gap: 14px;
+  padding: 18px 22px; border-radius: var(--radius-xl);
+  border: 1px solid; text-decoration: none;
+  transition: all .25s; cursor: pointer;
+}
+.dash-quick-link:hover { transform: translateY(-3px); box-shadow: var(--shadow-lg); filter: brightness(1.05); }
+.dash-quick-link__icon { font-size: 28px; flex-shrink: 0; }
+.dash-quick-link__text { font-size: 15px; font-weight: 700; color: var(--text-primary); flex: 1; }
+.dash-quick-link__arrow { font-size: 20px; color: var(--text-muted); }

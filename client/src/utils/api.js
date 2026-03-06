@@ -532,6 +532,31 @@ export async function getFriends() {
   }
 }
 
+// ═══════════════════════════════
+//  Analytics & Leaderboard APIs
+// ═══════════════════════════════
+
+export async function getMyAnalytics(period = "month") {
+  const res = await fetch(`${API}/analytics/me?period=${period}`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+export async function getLeaderboard(period = "month") {
+  const res = await fetch(`${API}/analytics/leaderboard?period=${period}`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
+export async function compareWithUser(userId, period = "month") {
+  const res = await fetch(`${API}/analytics/compare/${userId}?period=${period}`, {
+    headers: authHeaders(),
+  });
+  return res.json();
+}
+
 export async function sendOTP(email) {
   try {
     console.log('🔄 Attempting to send OTP to:', email);

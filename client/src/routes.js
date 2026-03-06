@@ -14,6 +14,8 @@ import Settings from "./pages/Settings";
 import Profile from "./pages/Profile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Analytics from "./pages/Analytics";
+import Leaderboard from "./pages/Leaderboard";
 
 // PrivateRoute component for protected pages
 function PrivateRoute({ children }) {
@@ -41,6 +43,10 @@ export default function AppRoutes() {
 
       {/* ✅ Friends route */}
       <Route path="/friends" element={<PrivateRoute><FriendsPage /></PrivateRoute>} />
+
+      {/* Analytics & Leaderboard */}
+      <Route path="/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+      <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
 
       {/* Catch-all: redirect unknown paths */}
       <Route path="*" element={<Navigate to="/" />} />

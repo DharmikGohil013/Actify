@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import LoaderOverlay from "../components/Loader";
 import {
   getTodayTasks,
@@ -7,6 +8,7 @@ import {
   getNotifications,
   getUserProfile,
   checkServerHealth,
+  getMyAnalytics,
 } from "../utils/api";
 import "./Dashboard.css";
 
@@ -165,6 +167,7 @@ export default function Dashboard() {
   const [missed, setMissed] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [profile, setProfile] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
   const [errors, setErrors] = useState({});
 
   const fetchAll = async (isRetry = false) => {
@@ -189,6 +192,12 @@ export default function Dashboard() {
 
       const profileData = await getUserProfile();
       setProfile(profileData || { name: "User", email: "", _id: null, error: true });
+
+      // Fetch analytics (non-blocking)
+      try {
+        const analyticsData = await getMyAnalytics("month");
+        if (analyticsData && !analyticsData.msg) setAnalytics(analyticsData);
+      } catch (_) { /* analytics are optional */ }
     } catch (error) {
       console.error("Dashboard fetch error:", error);
       if (isRetry) setErrors({ general: "Failed to reload data. Please try again." });
@@ -245,6 +254,47 @@ export default function Dashboard() {
             <DashStatCard label="Upcoming" value={upcoming.length} color="var(--accent-green)" icon={<ClockIcon color="var(--accent-green)" size={28} />} delay={200} />
             <DashStatCard label="Incomplete" value={incomplete.length} color="var(--accent-orange)" icon={<RefreshIcon color="var(--accent-orange)" size={28} />} delay={300} />
             <DashStatCard label="Missed" value={missed.length} color="var(--accent-red)" icon={<AlertIcon color="var(--accent-red)" size={28} />} delay={400} />
+          </div>
+
+          {/* ── Streak & Score Banner ── */}
+          {analytics?.summary && (
+            <div className="dash-insights-row">
+              <div className="dash-insight-card" style={{ borderLeftColor: "var(--accent-orange)" }}>
+                <div className="dash-insight-icon">🔥</div>
+                <div>
+                  <div className="dash-insight-value">{analytics.summary.currentStreak} day streak</div>
+                  <div className="dash-insight-sub">Best: {analytics.summary.longestStreak} days</div>
+                </div>
+              </div>
+              <div className="dash-insight-card" style={{ borderLeftColor: "var(--accent-purple)" }}>
+                <div className="dash-insight-icon">⭐</div>
+                <div>
+                  <div className="dash-insight-value">{analytics.summary.score} points</div>
+                  <div className="dash-insight-sub">{analytics.summary.completionRate}% completion rate</div>
+                </div>
+              </div>
+              <div className="dash-insight-card" style={{ borderLeftColor: "var(--accent-green)" }}>
+                <div className="dash-insight-icon">📊</div>
+                <div>
+                  <div className="dash-insight-value">{analytics.summary.avgTasksPerDay} tasks/day</div>
+                  <div className="dash-insight-sub">{analytics.summary.bestDay ? `Best on ${analytics.summary.bestDay}` : "Keep going!"}</div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Quick Links ── */}
+          <div className="dash-quick-links">
+            <Link to="/analytics" className="dash-quick-link" style={{ background: "linear-gradient(135deg, rgba(79,70,229,.1), rgba(139,92,246,.1))", borderColor: "rgba(79,70,229,.2)" }}>
+              <span className="dash-quick-link__icon">📈</span>
+              <span className="dash-quick-link__text">View Full Analytics</span>
+              <span className="dash-quick-link__arrow">→</span>
+            </Link>
+            <Link to="/leaderboard" className="dash-quick-link" style={{ background: "linear-gradient(135deg, rgba(245,158,11,.1), rgba(239,68,68,.1))", borderColor: "rgba(245,158,11,.2)" }}>
+              <span className="dash-quick-link__icon">🏆</span>
+              <span className="dash-quick-link__text">Leaderboard & Compare</span>
+              <span className="dash-quick-link__arrow">→</span>
+            </Link>
           </div>
 
           {/* ── Task Sections ── */}
